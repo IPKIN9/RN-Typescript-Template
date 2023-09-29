@@ -1,12 +1,46 @@
+import { useFonts } from 'expo-font';
 import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import { StyleSheet, Text, View } from 'react-native';
+import { useCallback } from 'react';
+import { GlobalProvider } from './store/GlobalStore';
+import { NavigationContainer } from '@react-navigation/native';
+
+SplashScreen.preventAutoHideAsync();
 
 export default function App() {
+  const [fontsLoaded, fontError] = useFonts({
+    'Montserrat-Thin'     : require('./assets/fonts/Montserrat/static/Montserrat-Thin.ttf'),
+    'Montserrat-SemiBold' : require('./assets/fonts/Montserrat/static/Montserrat-SemiBold.ttf'),
+    'Montserrat-Regular'  : require('./assets/fonts/Montserrat/static/Montserrat-Regular.ttf'),
+    'Montserrat-Medium'   : require('./assets/fonts/Montserrat/static/Montserrat-Medium.ttf'),
+    'Montserrat-Light'    : require('./assets/fonts/Montserrat/static/Montserrat-Light.ttf'),
+    'Montserrat-ExtraBold': require('./assets/fonts/Montserrat/static/Montserrat-ExtraBold.ttf'),
+    'Montserrat-Bold'     : require('./assets/fonts/Montserrat/static/Montserrat-Bold.ttf'),
+    'Montserrat-Black'    : require('./assets/fonts/Montserrat/static/Montserrat-Black.ttf'),
+  })
+
+  const onLayoutRootView = useCallback(async () => {
+    if (fontsLoaded || fontError) {
+      await SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded, fontError]);
+
+  if (!fontsLoaded && !fontError) {
+    return null;
+  }
+
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
+    <GlobalProvider>
+      <NavigationContainer>
+
+        <View style={styles.container} onLayout={onLayoutRootView}>
+          <Text>Open up App.tsx to start working on your app!</Text>
+          <StatusBar style="auto" />
+        </View>
+
+      </NavigationContainer>
+    </GlobalProvider>
   );
 }
 
