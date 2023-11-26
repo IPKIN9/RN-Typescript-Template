@@ -5,8 +5,12 @@ import { StyleSheet, Text, View } from 'react-native';
 import { useCallback } from 'react';
 import { GlobalProvider } from './store/GlobalStore';
 import { NavigationContainer } from '@react-navigation/native';
+import BottomTab from './navigation/BottomTab'
+import { createStackNavigator } from '@react-navigation/stack';
 
 SplashScreen.preventAutoHideAsync();
+
+const Stack = createStackNavigator();
 
 export default function App() {
   const [fontsLoaded, fontError] = useFonts({
@@ -32,14 +36,19 @@ export default function App() {
 
   return (
     <GlobalProvider>
-      <NavigationContainer>
+      <View style={styles.container} onLayout={onLayoutRootView}>
+        <NavigationContainer>
 
-        <View style={styles.container} onLayout={onLayoutRootView}>
-          <Text>Open up App.tsx to start working on your app!</Text>
-          <StatusBar style="auto" />
-        </View>
+          <Stack.Navigator initialRouteName="MainHome">
+            <Stack.Screen
+              name="MainHome"
+              component={BottomTab}
+              options={{ headerShown: false }}
+              />
+          </Stack.Navigator>
 
-      </NavigationContainer>
+        </NavigationContainer>
+      </View>
     </GlobalProvider>
   );
 }
@@ -47,8 +56,6 @@ export default function App() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    backgroundColor: '#fff'
   },
 });
