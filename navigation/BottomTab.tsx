@@ -1,8 +1,10 @@
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { Ionicons } from "@expo/vector-icons";
+import { Ionicons, MaterialCommunityIcons } from "@expo/vector-icons";
 import { StyleSheet } from "react-native";
 import * as React from "react";
 import Home from "../screens/pages/Home";
+import Status from "../screens/pages/Status";
+import Profile from "../screens/pages/Profile";
 import Colors from './../shared/Colors'
 
 export default function TabNavigation() {
@@ -11,8 +13,6 @@ export default function TabNavigation() {
   const styles = StyleSheet.create({
     tabBarStyling: {
       backgroundColor: "#F5F5F5",
-      borderTopWidth: 1,
-      borderTopColor: "#E0E0E0",
       height: 57,
       paddingTop: 6,
       margin: 0
@@ -38,7 +38,35 @@ export default function TabNavigation() {
         options={{
           tabBarLabel: "Home",
           tabBarIcon: ({ color, size }) => (
-            <Ionicons name="home" size={28} color={color} />
+            <MaterialCommunityIcons name="view-dashboard" size={28} color={color} />
+          ),
+          tabBarStyle: styles.tabBarStyling,
+          tabBarLabelStyle: styles.tabLabelStyling,
+          tabBarActiveTintColor: "#3b82f6",
+          tabBarInactiveTintColor: "#8E8E93",
+        }}
+      />
+      <Tab.Screen
+        name="Status"
+        component={Status}
+        options={{
+          tabBarLabel: "Status",
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="receipt" size={28} color={color} />
+          ),
+          tabBarStyle: styles.tabBarStyling,
+          tabBarLabelStyle: styles.tabLabelStyling,
+          tabBarActiveTintColor: "#3b82f6",
+          tabBarInactiveTintColor: "#8E8E93",
+        }}
+      />
+       <Tab.Screen
+        name="Profile"
+        component={Profile}
+        options={{
+          tabBarLabel: "Me",
+          tabBarIcon: ({ color, size }) => (
+            <MaterialCommunityIcons name="face-man-profile" size={28} color={color} />
           ),
           tabBarStyle: styles.tabBarStyling,
           tabBarLabelStyle: styles.tabLabelStyling,
