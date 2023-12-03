@@ -1,9 +1,11 @@
 import React, { useEffect } from "react"
-import { FlatList, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
+import { Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
 import Colors from "../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
-import DocktorList from './../component/DocktorList'
 import Schedule from './../component/Schedule'
+import CardSkeleton from '../component/Skeleton/CardSkeleton'
+import QuickAccessSkelton from '../component/Skeleton/QuickAccessSkelton'
+import ListSkeleton from '../component/Skeleton/ListSkeleton'
 
 const Home: React.FC  = () => {
   return (
@@ -20,6 +22,7 @@ const Home: React.FC  = () => {
       </View>
       <View className="relative w-full h-[480px] bg-gray-50 rounded-tr-[41px] px-0 overflow-hidden">
         <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
+          {/* <CardSkeleton /> */}
           <View className="h-[180px] w-full mt-12 px-4 py-2 ">
             <View className="h-full w-full rounded-3xl p-3 bg-orange-50 shadow-md shadow-gray-500 border-[1px] border-orange-400">
               <View className="flex flex-row justify-between items-start">
@@ -46,6 +49,7 @@ const Home: React.FC  = () => {
               <View className="w-full flex flex-row justify-between px-4">
                 <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">QUICK ACCESS</Text>
               </View>
+              {/* <QuickAccessSkelton /> */}
               <View className="flex flex-row justify-center gap-x-6 h-[60px] w-full mt-8">
                 <View className="w-[60px] h-full border-[1px] rounded-xl border-blue-500 bg-blue-400 flex flex-col items-center justify-center">
                   <Image source={require('./../../assets/icons/schedule.png')} className="w-[30px] h-[30px]" />
@@ -63,7 +67,7 @@ const Home: React.FC  = () => {
                   <Image source={require('./../../assets/icons/customer-service.png')} className="w-[30px] h-[30px] opacity-70" />
                   <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-blue-300 text-[10px] mt-[1px]">Bantuan</Text>
                 </View>
-                </View>
+              </View>
             </View>
 
             <View className="h-full mt-11 pb-4 w-full px-2">
@@ -73,7 +77,10 @@ const Home: React.FC  = () => {
               </View>
               
               <View className="flex flex-col justify-start items-center px-2 mt-2">
+
+                {/* <ListSkeleton /> */}
                 <Schedule />
+
               </View>
 
               {/* <View className="bg-gray-5 shadow-lg h-full py-6 rounded-md mt-2">
