@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
 import Colors from "../../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
@@ -6,24 +6,39 @@ import Schedule from './../Schedule'
 import CardSkeleton from '../Skeleton/CardSkeleton'
 import QuickAccessSkelton from '../Skeleton/QuickAccessSkelton'
 import ListSkeleton from '../Skeleton/ListSkeleton'
-import { useHomeContext } from '../../../store/HomeContextState'
+import { schedulesInterface, useHomeContext, HomeContextProvider } from '../../../store/HomeContextState'
 import ScheduleApi from "../../../ucase/Schedule";
+import moment from "moment";
 
 const HomeComp: React.FC  = () => { 
 
-    const { isLoading, setIsLoading } = useHomeContext()
+    const { isLoading, setIsLoading, setScheduleList } = useHomeContext()
+    const [dateNow, setDateNow] = useState('')
 
     const getScheduleData = async () => {
         setIsLoading(true)
-        await ScheduleApi.getAllData()
+        await ScheduleApi.getAllData({dokter_id: '', today: moment().format('YYYY-MM-DD')})
         .then((res) => {
-            console.log(res.data);   
+            const schdules = res.data as {
+                data: schedulesInterface[]
+            }
+            setScheduleList(schdules.data)
+            console.log(schdules.data);   
         })
         .catch((err) => {
             console.error(err);
         })
     }
     useEffect(() => {
+        moment.updateLocale('id', {
+            months: [
+                'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+                'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+            ],
+        });
+          
+        const currentDate = moment().format('DD MMMM');
+        setDateNow(currentDate)
         getScheduleData()
 
         setTimeout(() => {
@@ -106,7 +121,7 @@ const HomeComp: React.FC  = () => {
                     <View className="h-full mt-11 pb-4 w-full px-2">
                         <View className="w-full flex flex-row justify-between items-center px-4">
                         <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">JADWAL DOKTER</Text>
-                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400">30 SEPT</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ dateNow }</Text>
                         </View>
                         
                         <View className="flex flex-col justify-start items-center px-2 mt-2">
