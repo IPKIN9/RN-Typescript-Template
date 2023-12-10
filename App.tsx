@@ -35,21 +35,19 @@ export default function App() {
   }
 
   return (
-    <GlobalProvider>
-      <View style={styles.container} onLayout={onLayoutRootView}>
-        <NavigationContainer>
+    <View style={styles.container} onLayout={onLayoutRootView}>
+      <NavigationContainer>
 
-          <Stack.Navigator initialRouteName="MainHome">
-            <Stack.Screen
-              name="MainHome"
-              component={BottomTab}
-              options={{ headerShown: false }}
-              />
-          </Stack.Navigator>
+        <Stack.Navigator initialRouteName="MainHome">
+          <Stack.Screen
+            name="MainHome"
+            component={BottomTab}
+            options={{ headerShown: false }}
+            />
+        </Stack.Navigator>
 
-        </NavigationContainer>
-      </View>
-    </GlobalProvider>
+      </NavigationContainer>
+    </View>
   );
 }
 

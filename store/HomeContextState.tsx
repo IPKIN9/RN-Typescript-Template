@@ -1,16 +1,22 @@
 // File: MyContext.tsx
-import React, { createContext, useContext, ReactNode } from 'react';
+import React, { createContext, useContext, ReactNode, useState } from 'react';
 
 interface HomeContextState {
   isLoading  : boolean
-  pageLoading: boolean
+  pageLoading: boolean,
+  setIsLoading: (loading: boolean) => void; 
 }
 const HomeContext = createContext<HomeContextState | undefined>(undefined);
 
-export const MyContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const HomeContextProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  
+  const [isLoading, setIsLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
+
   const initialState: HomeContextState = {
-    isLoading  : true,
-    pageLoading: true
+    isLoading,
+    pageLoading,
+    setIsLoading
   };
 
   return (
@@ -23,7 +29,7 @@ export const MyContextProvider: React.FC<{ children: ReactNode }> = ({ children 
 export const useHomeContext = () => {
   const context = useContext(HomeContext);
   if (!context) {
-    throw new Error('useHomeContext must be used within a MyContextProvider');
+    throw new Error('useHomeContext must be used within a HomeContextProvider');
   }
   return context;
 };

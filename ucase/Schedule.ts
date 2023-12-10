@@ -2,10 +2,10 @@ import Main from './Main'
 
 const endPoint: string = "/api/mobile/schedule"
 
-const Api = {
-    getAllData: async () => {
+const ScheduleApi = {
+    getAllData () {
         return Main().get(endPoint)
     }
 }
 
-export default Api
+export default ScheduleApi

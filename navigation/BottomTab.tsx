@@ -50,7 +50,7 @@ export default function TabNavigation() {
         name="Status"
         component={Status}
         options={{
-          tabBarLabel: "Status",
+          tabBarLabel: "Riwayat",
           tabBarIcon: ({ color, size }) => (
             <Ionicons name="receipt" size={28} color={color} />
           ),
