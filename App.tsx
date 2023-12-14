@@ -6,6 +6,8 @@ import { useCallback } from 'react';
 import { GlobalProvider } from './store/GlobalStore';
 import { NavigationContainer } from '@react-navigation/native';
 import BottomTab from './navigation/BottomTab'
+import Login from './screens/pages/Login'
+import Splash from './screens/pages/Splash'
 import { createStackNavigator } from '@react-navigation/stack';
 
 SplashScreen.preventAutoHideAsync();
@@ -38,7 +40,17 @@ export default function App() {
     <View style={styles.container} onLayout={onLayoutRootView}>
       <NavigationContainer>
 
-        <Stack.Navigator initialRouteName="MainHome">
+        <Stack.Navigator initialRouteName="Login">
+          <Stack.Screen
+            name="Splash"
+            component={Splash}
+            options={{ headerShown: false }}
+            />
+          <Stack.Screen
+            name="Login"
+            component={Login}
+            options={{ headerShown: false }}
+            />
           <Stack.Screen
             name="MainHome"
             component={BottomTab}

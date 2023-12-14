@@ -1,4 +1,5 @@
 import Main from './Main'
+import { getData } from '../util/TokenConfig'
 
 const endPoint: string = "/api/mobile/schedule"
 interface endPointParamsInterface {
@@ -6,8 +7,16 @@ interface endPointParamsInterface {
     today: string | null
 }
 const ScheduleApi = {
-    getAllData (params: endPointParamsInterface) {
-        return Main().get(`${endPoint}?dokter_id=${params.dokter_id}?today=${params.today}`)
+    
+    async getAllData (params: endPointParamsInterface) {
+        const token = await getData()
+        
+        return Main().get(`${endPoint}?dokter_id=${params.dokter_id}?today=${params.today}`, {
+            headers:{
+                Authorization: `Bearer ${token}`,
+                Accept: 'application/json'
+            }
+        })
     }
 }
 

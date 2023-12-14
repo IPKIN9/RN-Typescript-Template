@@ -3,16 +3,19 @@ import { Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-na
 import Colors from "../../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
 import Schedule from './../Schedule'
+import DoctorList from './../DocktorList'
 import CardSkeleton from '../Skeleton/CardSkeleton'
 import QuickAccessSkelton from '../Skeleton/QuickAccessSkelton'
 import ListSkeleton from '../Skeleton/ListSkeleton'
-import { schedulesInterface, useHomeContext, HomeContextProvider } from '../../../store/HomeContextState'
+import { schedulesInterface, useHomeContext, HomeContextProvider, doctorInterface } from '../../../store/HomeContextState'
 import ScheduleApi from "../../../ucase/Schedule";
+import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
+import { errorProduce } from '../../../util/ErrorLogConsoleReport'
 
 const HomeComp: React.FC  = () => { 
 
-    const { isLoading, setIsLoading, setScheduleList } = useHomeContext()
+    const { isLoading, setIsLoading, setScheduleList, setDoctorList } = useHomeContext()
     const [dateNow, setDateNow] = useState('')
 
     const getScheduleData = async () => {
@@ -26,9 +29,25 @@ const HomeComp: React.FC  = () => {
             console.log(schdules.data);   
         })
         .catch((err) => {
-            console.error(err);
+            errorProduce(err)
         })
     }
+
+    const getDoctorData = async () => {
+        setIsLoading(true)
+        await DoctorApi.getAllData()
+        .then((res) => {
+            const schdules = res.data as {
+                data: doctorInterface[]
+            }
+            setDoctorList(schdules.data)
+            console.log(schdules.data);   
+        })
+        .catch((err) => {
+            errorProduce(err)
+        })
+    }
+
     useEffect(() => {
         moment.updateLocale('id', {
             months: [
@@ -39,7 +58,9 @@ const HomeComp: React.FC  = () => {
           
         const currentDate = moment().format('DD MMMM');
         setDateNow(currentDate)
+        
         getScheduleData()
+        getDoctorData()
 
         setTimeout(() => {
             setIsLoading(false)
@@ -120,11 +141,11 @@ const HomeComp: React.FC  = () => {
 
                     <View className="h-full mt-11 pb-4 w-full px-2">
                         <View className="w-full flex flex-row justify-between items-center px-4">
-                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">JADWAL DOKTER</Text>
-                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ dateNow }</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">DOKTER TERBAIK KAMI</Text>
+                        {/* <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ dateNow }</Text> */}
                         </View>
                         
-                        <View className="flex flex-col justify-start items-center px-2 mt-2">
+                        {/* <View className="flex flex-col justify-start items-center px-2 mt-2">
 
                         {isLoading && (<ListSkeleton />)}
 
@@ -132,11 +153,11 @@ const HomeComp: React.FC  = () => {
                             <Schedule />
                         )}
 
-                        </View>
-
-                        {/* <View className="bg-gray-5 shadow-lg h-full py-6 rounded-md mt-2">
-                        <DocktorList/>
                         </View> */}
+
+                        <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
+                            <DoctorList/>
+                        </View>
                         
                     </View>
                     </SafeAreaView>
