@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
+import { BackHandler, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
 import Colors from "../../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
 import Schedule from './../Schedule'
@@ -12,43 +12,76 @@ import ScheduleApi from "../../../ucase/Schedule";
 import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
 import { errorProduce } from '../../../util/ErrorLogConsoleReport'
+import { StackNavigationProp } from "@react-navigation/stack";
+import Animated, { Easing, useSharedValue, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
+import { clearData, getData } from "../../../util/TokenConfig";
 
-const HomeComp: React.FC  = () => { 
+type LoginFormProps = {
+    navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
+};
 
-    const { isLoading, setIsLoading, setScheduleList, setDoctorList } = useHomeContext()
+const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => { 
+
+    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard } = useHomeContext()
     const [dateNow, setDateNow] = useState('')
+    const [quickAccess, setQuickAccess] = useState(1)
+    const [listSkelton, setListSkelton] = useState(false)
+    const [isLogin, setIsLogin] = useState(false)
+
+    const checkLogin = async () => {
+        setIsLogin(await getData() ? true : false)
+    }
+
+    const getMedicalCard = async () => {
+
+    }
 
     const getScheduleData = async () => {
-        setIsLoading(true)
-        await ScheduleApi.getAllData({dokter_id: '', today: moment().format('YYYY-MM-DD')})
+        setListSkelton(true)
+        setQuickAccess(1)
+        await ScheduleApi.getAllData({dokter_id: '', today: moment().format('YYYY-DD-MM')})
         .then((res) => {
             const schdules = res.data as {
                 data: schedulesInterface[]
             }
             setScheduleList(schdules.data)
-            console.log(schdules.data);   
         })
         .catch((err) => {
-            errorProduce(err)
+            if (err.response && err.response.status === 401) {
+                clearData()
+                navigation.navigate('Login')
+            } else {
+                // errorProduce(err)
+            }
         })
+
+        setTimeout(() => {
+            setListSkelton(false)
+        }, 800);
     }
 
     const getDoctorData = async () => {
-        setIsLoading(true)
+        setListSkelton(true)
+        setQuickAccess(2)
         await DoctorApi.getAllData()
         .then((res) => {
             const schdules = res.data as {
                 data: doctorInterface[]
             }
             setDoctorList(schdules.data)
-            console.log(schdules.data);   
         })
         .catch((err) => {
             errorProduce(err)
         })
+
+        setTimeout(() => {
+            setListSkelton(false)
+        }, 800);
     }
 
     useEffect(() => {
+        checkLogin()
+        setIsLoading(true)
         moment.updateLocale('id', {
             months: [
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -60,11 +93,24 @@ const HomeComp: React.FC  = () => {
         setDateNow(currentDate)
         
         getScheduleData()
-        getDoctorData()
 
         setTimeout(() => {
             setIsLoading(false)
         }, 2000);
+
+        const handleBackButton = () => {
+            // Handle the back button press
+            // You can add your own logic here before exiting the app if needed
+            // For now, we are just exiting the app
+            BackHandler.exitApp();
+            return true; // Prevent default behavior (closing the app)
+        };
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+        // Remove event listener when the component is unmounted
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
     }, [])
 
     return (
@@ -88,20 +134,24 @@ const HomeComp: React.FC  = () => {
 
                    {!isLoading && (
                      <View className="h-[180px] w-full mt-12 px-4 py-2 ">
-                        <View className="h-full w-full rounded-3xl p-3 bg-orange-50 shadow-md shadow-gray-500 border-[1px] border-orange-400">
+                        <View className={`h-full w-full rounded-3xl p-3 shadow-md shadow-gray-500 border-[1px] ${isLogin ? 'border-orange-400 bg-orange-50' : 'border-blue-400 bg-blue-50'}`}>
                             <View className="flex flex-row justify-between items-start">
                             <View className="flex flex-col items-start">
                                 <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px] text-gray-700">RS.Undata Palu</Text>
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-gray-700">IRWANDI PAPUTUNGAN</Text>
+                                {medicalCard.id >= 1 && (
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-gray-700">{medicalCard.nama_profile}</Text>
+                                )}
                             </View>
                             <SimpleLineIcons name="options" size={18} color="#f97316" />
                             </View>
                             <Pressable className="flex flex-row justify-center items-center h-1/2 w-full mt-2">
-                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-2xl mr-3 text-orange-500">882-733-716-2</Text>
-                            <Feather name="copy" size={21} color="#f97316" />
+                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 ${isLogin && medicalCard.id >= 1 ? 'text-orange-500 text-2xl' : 'text-blue-400 text-xl'} mt-2`}>{ isLogin && medicalCard.id >= 1 ? medicalCard.no_rm : !isLogin ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
+                            { medicalCard.id >= 1 && (
+                                <Feather name="copy" size={21} color="#f97316" />
+                            ) }
                             </Pressable>
                             <View className="flex flex-row justify-end items-end mt-1">
-                            <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px]">26/8/23</Text>
+                            <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px]">{medicalCard.tl}</Text>
                             </View>
                         </View>
                         <View className="absolute w-[80px] h-[60px] z-0 top-0 left-2 rounded-tl-[31px] border-t-2 border-l-2 border-orange-400 bg-transparent" />
@@ -119,45 +169,63 @@ const HomeComp: React.FC  = () => {
 
                         {!isLoading && (
                             <View className="flex flex-row justify-center gap-x-6 h-[60px] w-full mt-8">
-                            <View className="w-[60px] h-full border-[1px] rounded-xl border-blue-500 bg-blue-400 flex flex-col items-center justify-center">
-                                <Image source={require('./../../../assets/icons/schedule.png')} className="w-[30px] h-[30px]" />
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-white text-[10px] mt-[1px]">Jadwal</Text>
-                            </View>
-                            <View className="w-[60px] h-full border-[1px] rounded-xl border-gray-300 flex flex-col items-center justify-center">
-                                <Image source={require('./../../../assets/icons/doctor.png')} className="w-[30px] h-[30px] opacity-70" />
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-blue-300 text-[10px] mt-[1px]">Dokter</Text>
-                            </View>
-                            <View className="w-[60px] h-full border-[1px] rounded-xl border-gray-300 flex flex-col items-center justify-center">
-                                <Image source={require('./../../../assets/icons/list.png')} className="w-[30px] h-[30px] opacity-40" />
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-blue-300 text-[10px] mt-[1px]">Riwayat</Text>
-                            </View>
-                            <View className="w-[60px] h-full border-[1px] rounded-xl border-gray-300 flex flex-col items-center justify-center">
-                                <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px] opacity-70" />
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-blue-300 text-[10px] mt-[1px]">Bantuan</Text>
-                            </View>
+                            <Pressable onPress={() => {getScheduleData()}}>
+                                <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 1 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                    <Image source={require('./../../../assets/icons/schedule.png')} className="w-[30px] h-[30px]" />
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 1 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Jadwal</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {getDoctorData()}}>
+                                <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 2 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                    <Image source={require('./../../../assets/icons/doctor.png')} className="w-[30px] h-[30px]" />
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 2 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Dokter</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {setQuickAccess(3)}}>
+                                <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 3 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                    <Image source={require('./../../../assets/icons/list.png')} className="w-[30px] h-[30px]" />
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 3 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Riwayat</Text>
+                                </View>
+                            </Pressable>
+                            <Pressable onPress={() => {setQuickAccess(4)}}>
+                                <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 4 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                    <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px]" />
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Bantuan</Text>
+                                </View>
+                            </Pressable>
                             </View>
                         )}
                     </View>
 
                     <View className="h-full mt-11 pb-4 w-full px-2">
                         <View className="w-full flex flex-row justify-between items-center px-4">
-                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">DOKTER TERBAIK KAMI</Text>
-                        {/* <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ dateNow }</Text> */}
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">{ quickAccess === 1 ? 'JADWAL' : 'DOKTER' }</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ quickAccess === 1 ? dateNow : '' }</Text>
                         </View>
                         
-                        {/* <View className="flex flex-col justify-start items-center px-2 mt-2">
+                        <View className="flex flex-col justify-start items-center px-2 mt-2">
 
-                        {isLoading && (<ListSkeleton />)}
+                            {(isLoading || listSkelton) && <ListSkeleton />}
 
-                        {!isLoading && (
+                            {!isLoading && quickAccess === 1 && scheduleList.length >= 1 && (
                             <Schedule />
-                        )}
+                            )}
 
-                        </View> */}
+                            {!isLoading && !listSkelton && quickAccess === 1 && scheduleList.length === 0 && (
+                            <View className="w-full flex flex-row justify-center items-center h-[200px]">
+                                <Text style={{ color: '#888', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>
+                                Tidak ada jadwal hari ini.
+                                </Text>
+                            </View>
+                            )}
 
-                        <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
-                            <DoctorList/>
                         </View>
+
+                        {!isLoading && !listSkelton && quickAccess === 2 && (
+                            <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
+                                <DoctorList/>
+                            </View>
+                        )}
                         
                     </View>
                     </SafeAreaView>

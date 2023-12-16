@@ -15,9 +15,10 @@ const getData = async () => {
             // value previously stored
             return value
         }
+        return ''
     } catch (e) {
         console.log(e);
-        return e
+        return ''
     }
 };
 

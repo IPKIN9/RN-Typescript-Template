@@ -6,6 +6,8 @@ import Home from "../screens/pages/Home";
 import Status from "../screens/pages/Status";
 import Profile from "../screens/pages/Profile";
 import Colors from './../shared/Colors'
+import Login from "../screens/pages/Login";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function TabNavigation() {
   const Tab = createBottomTabNavigator();
@@ -25,6 +27,27 @@ export default function TabNavigation() {
       marginTop: -5
     },
   });
+
+  const checkTokenInStorage = async () => {
+    try {
+      // Menggunakan AsyncStorage untuk mengecek token secara asynchronous
+      const token = await AsyncStorage.getItem('userToken');
+
+      // Jika token ditemukan di storage, return true
+      // Jika tidak ditemukan, atau terdapat kesalahan lainnya, return false
+      return !!token;
+    } catch (error) {
+      console.error('Error checking token in storage:', error);
+      return false;
+    }
+  };
+
+  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
+
+  React.useEffect(() => {
+    // Menjalankan pengecekan keberadaan token
+    checkTokenInStorage().then(result => setIsLoggedIn(result));
+  }, []);
 
   return (
     <Tab.Navigator
@@ -60,20 +83,37 @@ export default function TabNavigation() {
           tabBarInactiveTintColor: "#8E8E93",
         }}
       />
-       <Tab.Screen
-        name="Profile"
-        component={Profile}
-        options={{
-          tabBarLabel: "Me",
-          tabBarIcon: ({ color, size }) => (
-            <MaterialCommunityIcons name="face-man-profile" size={28} color={color} />
-          ),
-          tabBarStyle: styles.tabBarStyling,
-          tabBarLabelStyle: styles.tabLabelStyling,
-          tabBarActiveTintColor: "#3b82f6",
-          tabBarInactiveTintColor: "#8E8E93",
-        }}
-      />
+       {isLoggedIn ? (
+        <Tab.Screen
+          name="Profile"
+          component={Profile}
+          options={{
+            tabBarLabel: "Me",
+            tabBarIcon: ({ color, size }) => (
+              <MaterialCommunityIcons name="face-man-profile" size={28} color={color} />
+            ),
+            tabBarStyle: styles.tabBarStyling,
+            tabBarLabelStyle: styles.tabLabelStyling,
+            tabBarActiveTintColor: "#3b82f6",
+            tabBarInactiveTintColor: "#8E8E93",
+          }}
+        />
+      ) : (
+        <Tab.Screen
+          name="Login"
+          component={Login}
+          options={{
+            tabBarLabel: "Login",
+            tabBarIcon: ({ color, size }) => (
+              <Ionicons name="log-in" size={28} color={color} />
+            ),
+            tabBarStyle: styles.tabBarStyling,
+            tabBarLabelStyle: styles.tabLabelStyling,
+            tabBarActiveTintColor: "#3b82f6",
+            tabBarInactiveTintColor: "#8E8E93",
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }

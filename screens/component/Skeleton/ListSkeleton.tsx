@@ -7,7 +7,7 @@ const ShimmerPlaceholder = createShimmerPlaceholder(LinearGradient)
 
 const ListSkeleton: React.FC  = () => {
     return (
-        <View className="grid grid-cols-2 justify-between gap-x-4 py-2 px-2 w-full">
+        <View className="grid grid-cols-2 justify-between gap-x-4 py-2 px-2 w-full h-[200px]">
             <ShimmerPlaceholder className="w-full rounded-lg" />
         </View>
     )

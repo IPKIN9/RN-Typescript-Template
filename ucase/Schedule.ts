@@ -10,8 +10,9 @@ const ScheduleApi = {
     
     async getAllData (params: endPointParamsInterface) {
         const token = await getData()
+        console.log(params);
         
-        return Main().get(`${endPoint}?dokter_id=${params.dokter_id}?today=${params.today}`, {
+        return Main().get(`${endPoint}?today=${params.today}`, {
             headers:{
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json'

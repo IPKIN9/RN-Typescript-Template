@@ -1,11 +1,16 @@
 import React, { useEffect } from "react"
 import { HomeContextProvider, useHomeContext } from '../../store/HomeContextState'
 import HomeComp from '../component/Home'
+import { StackNavigationProp } from "@react-navigation/stack";
 
-const Home: React.FC  = () => {
+type LoginScreenProps = {
+  navigation: StackNavigationProp<{}>;
+};
+
+const Home: React.FC<LoginScreenProps>  = ({ navigation }) => {
   return (
     <HomeContextProvider>
-      <HomeComp />
+      <HomeComp navigation={navigation}/>
     </HomeContextProvider>
   )
 }

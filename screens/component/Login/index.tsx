@@ -1,12 +1,13 @@
 import React, { useEffect } from "react"
-import { Image, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native"
-import { MaterialIcons } from '@expo/vector-icons';
+import { ActivityIndicator, Image, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native"
+import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Colors from "../../../shared/Colors"
 import { ILoginPayload, useLoginContext } from '../../../store/LoginContextState'
 import LoginApi from '../../../ucase/Login'
 import { errorProduce } from '../../../util/ErrorLogConsoleReport'
 import { StackNavigationProp } from "@react-navigation/stack";
 import { storeData, getData } from '../../../util/TokenConfig'
+import { BackHandler } from 'react-native';
 
 type LoginFormProps = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
@@ -38,8 +39,8 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
         .catch(error => {
              // handle error
             errorProduce(error)
+            setIsLoading(false)
         });
-        setIsLoading(false)
     }
 
     const ifLogin = async () => {
@@ -54,6 +55,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
 
     useEffect(() => {
         ifLogin()
+        
         setTimeout(() => {
             setIsLoading(false)
         }, 800);
@@ -74,6 +76,7 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
                  <View className="flex flex-col gap-y-[12px]">
                      <Text className="text-[12px] text-gray-500" style={{ fontFamily: 'Montserrat-SemiBold' }}>Username</Text>
                      <TextInput
+                        editable={!isLoading}
                         value={loginPayload.username}
                         onChangeText={(text) => handleInputChange('username', text)}
                         className="px-[11px] py-[4px] border-[1px] border-gray-400 rounded-lg" placeholder="Cth. user@mail.com" />
@@ -81,13 +84,17 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
                  <View className="flex flex-col gap-y-[12px]">
                      <Text className="text-[12px] text-gray-500" style={{ fontFamily: 'Montserrat-SemiBold' }}>Password</Text>
                      <TextInput 
+                        editable={!isLoading}
                         onChangeText={(text) => handleInputChange('password', text)}
                         className="px-[11px] py-[4px] border-[1px] border-gray-400 rounded-lg" secureTextEntry placeholder="******" />
                  </View>
              </View>
              <View className="w-full">
-                 <Pressable onPress={() => {checkForm()}} className={`px-[24px] py-[14px] rounded-[8px] ${isLoading ? 'bg-gray-300' : 'bg-blue-400'}`}>
-                     <Text className="text-center text-white text-[12px]" style={{ fontFamily: 'Montserrat-SemiBold' }}>Sign In</Text>
+                 <Pressable onPress={() => {checkForm()}} className={`px-[24px] py-[14px] flex flex-row gap-x-2 justify-center items-center rounded-[8px] ${isLoading ? 'bg-gray-300' : 'bg-blue-400'}`}>
+                    <Text className="text-center text-white text-[12px]" style={{ fontFamily: 'Montserrat-SemiBold' }}>Sign In</Text>
+                    {isLoading ? (
+                        <ActivityIndicator size="small" color="#fff" style={{ marginRight: 5 }} />
+                    ) : ('')}
                  </Pressable>
              </View>
         </View>
