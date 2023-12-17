@@ -55,10 +55,21 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
 
     useEffect(() => {
         ifLogin()
-        
+
         setTimeout(() => {
             setIsLoading(false)
         }, 800);
+
+        const handleBackButton = () => {
+            navigation.navigate('MainHome')
+            return true; // Prevent default behavior (closing the app)
+        };
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+        // Remove event listener when the component is unmounted
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+        };
     }, [])
 
     return (

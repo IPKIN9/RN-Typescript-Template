@@ -8,8 +8,9 @@ import Profile from "../screens/pages/Profile";
 import Colors from './../shared/Colors'
 import Login from "../screens/pages/Login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useNavigation } from "@react-navigation/native";
 
-export default function TabNavigation() {
+export default function TabNavigation()  {
   const Tab = createBottomTabNavigator();
 
   const styles = StyleSheet.create({
@@ -48,6 +49,13 @@ export default function TabNavigation() {
     // Menjalankan pengecekan keberadaan token
     checkTokenInStorage().then(result => setIsLoggedIn(result));
   }, []);
+
+  const navigation: any = useNavigation();
+
+  const navigateToLogin = () => {
+    // Gantilah 'LoginScreen' dengan nama layar login yang sesuai di aplikasi Anda
+    navigation.navigate('Login');
+  };
 
   return (
     <Tab.Navigator
@@ -103,14 +111,18 @@ export default function TabNavigation() {
           name="Login"
           component={Login}
           options={{
-            tabBarLabel: "Login",
-            tabBarIcon: ({ color, size }) => (
-              <Ionicons name="log-in" size={28} color={color} />
-            ),
+            tabBarLabel: 'Login',
+            tabBarIcon: ({ color, size }) => <Ionicons name="log-in" size={28} color={color} />,
             tabBarStyle: styles.tabBarStyling,
             tabBarLabelStyle: styles.tabLabelStyling,
-            tabBarActiveTintColor: "#3b82f6",
-            tabBarInactiveTintColor: "#8E8E93",
+            tabBarActiveTintColor: '#3b82f6',
+            tabBarInactiveTintColor: '#8E8E93',
+          }}
+          listeners={{
+            tabPress: (e) => {
+              e.preventDefault();
+              navigateToLogin();
+            },
           }}
         />
       )}

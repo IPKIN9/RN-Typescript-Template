@@ -7,7 +7,7 @@ import DoctorList from './../DocktorList'
 import CardSkeleton from '../Skeleton/CardSkeleton'
 import QuickAccessSkelton from '../Skeleton/QuickAccessSkelton'
 import ListSkeleton from '../Skeleton/ListSkeleton'
-import { schedulesInterface, useHomeContext, HomeContextProvider, doctorInterface } from '../../../store/HomeContextState'
+import { schedulesInterface, useHomeContext, HomeContextProvider, doctorInterface, IMedicalCardInterface } from '../../../store/HomeContextState'
 import ScheduleApi from "../../../ucase/Schedule";
 import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
@@ -15,14 +15,16 @@ import { errorProduce } from '../../../util/ErrorLogConsoleReport'
 import { StackNavigationProp } from "@react-navigation/stack";
 import Animated, { Easing, useSharedValue, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
 import { clearData, getData } from "../../../util/TokenConfig";
+import MedicalCardApi from '../../../ucase/MedicalCard'
+import { useIsFocused } from "@react-navigation/native";
 
 type LoginFormProps = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
 };
 
 const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => { 
-
-    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard } = useHomeContext()
+    const isFocused = useIsFocused();
+    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard, setMedicalCard } = useHomeContext()
     const [dateNow, setDateNow] = useState('')
     const [quickAccess, setQuickAccess] = useState(1)
     const [listSkelton, setListSkelton] = useState(false)
@@ -33,7 +35,22 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
     }
 
     const getMedicalCard = async () => {
-
+        await MedicalCardApi.getAllData()
+        .then((res) => {
+            const medicalCard = res.data as {
+                data: IMedicalCardInterface
+            }
+            setMedicalCard(medicalCard.data)
+        })
+        .catch((err) => {
+            console.log(err.response);
+            
+            if (err.response && err.response.status === 401) {
+                clearData()
+            } else {
+                errorProduce(err)
+            }
+        })
     }
 
     const getScheduleData = async () => {
@@ -41,17 +58,19 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         setQuickAccess(1)
         await ScheduleApi.getAllData({dokter_id: '', today: moment().format('YYYY-DD-MM')})
         .then((res) => {
-            const schdules = res.data as {
-                data: schedulesInterface[]
+            if (res.data) {
+                const schdules = res.data as {
+                    data: schedulesInterface[]
+                }
+                setScheduleList(schdules.data)
             }
-            setScheduleList(schdules.data)
         })
         .catch((err) => {
             if (err.response && err.response.status === 401) {
                 clearData()
                 navigation.navigate('Login')
             } else {
-                // errorProduce(err)
+                errorProduce(err)
             }
         })
 
@@ -79,9 +98,18 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         }, 800);
     }
 
-    useEffect(() => {
-        checkLogin()
+    const refreshMainHome = async () => {
         setIsLoading(true)
+        await Promise.all([
+            getScheduleData(),
+            getMedicalCard()])
+        checkLogin()
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 2000);
+    };
+
+    useEffect(() => {
         moment.updateLocale('id', {
             months: [
                 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
@@ -91,12 +119,12 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
           
         const currentDate = moment().format('DD MMMM');
         setDateNow(currentDate)
-        
-        getScheduleData()
 
-        setTimeout(() => {
-            setIsLoading(false)
-        }, 2000);
+        const unsubscribe = navigation.addListener('focus', () => {
+            refreshMainHome();
+        });
+    
+        // Membersihkan listener saat komponen tidak lagi terfokus
 
         const handleBackButton = () => {
             // Handle the back button press
@@ -110,8 +138,10 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         // Remove event listener when the component is unmounted
         return () => {
           BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+          unsubscribe();
         };
-    }, [])
+
+    }, [navigation])
 
     return (
         <View>
@@ -145,7 +175,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                             <SimpleLineIcons name="options" size={18} color="#f97316" />
                             </View>
                             <Pressable className="flex flex-row justify-center items-center h-1/2 w-full mt-2">
-                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 ${isLogin && medicalCard.id >= 1 ? 'text-orange-500 text-2xl' : 'text-blue-400 text-xl'} mt-2`}>{ isLogin && medicalCard.id >= 1 ? medicalCard.no_rm : !isLogin ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
+                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 text-xl ${isLogin ? 'text-orange-500' : 'text-blue-400'} mt-2`}>{ isLogin && medicalCard.id >= 1 ? medicalCard.no_rm : !isLogin ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
                             { medicalCard.id >= 1 && (
                                 <Feather name="copy" size={21} color="#f97316" />
                             ) }
@@ -190,7 +220,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                             <Pressable onPress={() => {setQuickAccess(4)}}>
                                 <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 4 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
                                     <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px]" />
-                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Bantuan</Text>
+                                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Petunjuk</Text>
                                 </View>
                             </Pressable>
                             </View>
@@ -199,7 +229,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
 
                     <View className="h-full mt-11 pb-4 w-full px-2">
                         <View className="w-full flex flex-row justify-between items-center px-4">
-                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">{ quickAccess === 1 ? 'JADWAL' : 'DOKTER' }</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">{ quickAccess === 1 ? 'JADWAL' : quickAccess === 2 ? 'DOKTER' : quickAccess === 3 ? 'Riwayat' : 'Petunjuk' }</Text>
                         <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ quickAccess === 1 ? dateNow : '' }</Text>
                         </View>
                         
@@ -224,6 +254,12 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                         {!isLoading && !listSkelton && quickAccess === 2 && (
                             <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
                                 <DoctorList/>
+                            </View>
+                        )}
+
+                        {!isLoading && !listSkelton && quickAccess === 3 && (
+                            <View>
+                                
                             </View>
                         )}
                         
