@@ -7,7 +7,8 @@ import DoctorList from './../DocktorList'
 import CardSkeleton from '../Skeleton/CardSkeleton'
 import QuickAccessSkelton from '../Skeleton/QuickAccessSkelton'
 import ListSkeleton from '../Skeleton/ListSkeleton'
-import { schedulesInterface, useHomeContext, HomeContextProvider, doctorInterface, IMedicalCardInterface } from '../../../store/HomeContextState'
+import { schedulesInterface, useHomeContext, doctorInterface, IMedicalCardInterface, IVisitHistory } from '../../../store/HomeContextState'
+import { useGlobal } from '../../../store/GlobalStore'
 import ScheduleApi from "../../../ucase/Schedule";
 import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
@@ -17,6 +18,9 @@ import Animated, { Easing, useSharedValue, withSpring, withTiming, runOnJS } fro
 import { clearData, getData } from "../../../util/TokenConfig";
 import MedicalCardApi from '../../../ucase/MedicalCard'
 import { useIsFocused } from "@react-navigation/native";
+import VisitHistoryApi from '../../../ucase/VisitHistory'
+import VisitHistory from '../../component/VisitHistory'
+import Help from '../../component/Help'
 import 'moment/locale/id'
 
 type LoginFormProps = {
@@ -25,14 +29,15 @@ type LoginFormProps = {
 
 const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => { 
     const isFocused = useIsFocused();
-    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard, setMedicalCard } = useHomeContext()
+    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard, setMedicalCard, visitHistory, setVisitHistory } = useHomeContext()
+    const { setAuth, isAuth } = useGlobal()
     const [dateNow, setDateNow] = useState('')
     const [quickAccess, setQuickAccess] = useState(1)
     const [listSkelton, setListSkelton] = useState(false)
     const [isLogin, setIsLogin] = useState(false)
 
     const checkLogin = async () => {
-        setIsLogin(await getData() ? true : false)
+        setAuth(await getData() ? true : false)
     }
 
     const getMedicalCard = async () => {
@@ -101,15 +106,45 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         }, 800);
     }
 
+    const getVisitHistoryData = async () => {
+        setListSkelton(true)
+        setQuickAccess(3)
+        if (isAuth) {
+            await VisitHistoryApi.getAllData()
+            .then((res) => {
+                const visitHistory = res.data as {
+                    data: IVisitHistory[]
+                }
+                setVisitHistory(visitHistory.data)
+            })
+            .catch((err) => {
+                errorProduce(err)
+            })
+        }
+
+        setTimeout(() => {
+            setListSkelton(false)
+        }, 800);
+    }
+
+    const getHelp = () => {
+        setListSkelton(true)
+        setQuickAccess(4)
+        setTimeout(() => {
+            setListSkelton(false)
+        }, 800);
+    }
+
     const refreshMainHome = async () => {
-        setIsLoading(true)
         await Promise.all([
             getScheduleData(),
             getMedicalCard()])
         checkLogin()
         setTimeout(() => {
             setIsLoading(false)
-        }, 2000);
+            console.log("sudah down");
+            
+        }, 1000);
     };
 
     useEffect(() => {
@@ -167,7 +202,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
 
                    {!isLoading && (
                      <View className="h-[180px] w-full mt-12 px-4 py-2 ">
-                        <View className={`h-full w-full rounded-3xl p-3 shadow-md shadow-gray-500 border-[1px] ${isLogin ? 'border-orange-400 bg-orange-50' : 'border-blue-400 bg-blue-50'}`}>
+                        <View className={`h-full w-full rounded-3xl p-3 shadow-md shadow-gray-500 border-[1px] ${isAuth ? 'border-orange-400 bg-orange-50' : 'border-blue-400 bg-blue-50'}`}>
                             <View className="flex flex-row justify-between items-start">
                             <View className="flex flex-col items-start">
                                 <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px] text-gray-700">RS.Undata Palu</Text>
@@ -178,7 +213,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                             <SimpleLineIcons name="options" size={18} color="#f97316" />
                             </View>
                             <Pressable className="flex flex-row justify-center items-center h-1/2 w-full mt-2">
-                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 text-xl ${isLogin ? 'text-orange-500' : 'text-blue-400'} mt-2`}>{ isLogin && medicalCard.id >= 1 ? medicalCard.no_rm : !isLogin ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
+                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 text-xl ${isAuth ? 'text-orange-500' : 'text-blue-400'} mt-2`}>{ isAuth && medicalCard.id >= 1 ? medicalCard.no_rm : !isAuth ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
                             { medicalCard.id >= 1 && (
                                 <Feather name="copy" size={21} color="#f97316" />
                             ) }
@@ -214,13 +249,13 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                                     <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 2 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Dokter</Text>
                                 </View>
                             </Pressable>
-                            <Pressable onPress={() => {setQuickAccess(3)}}>
+                            <Pressable onPress={() => {getVisitHistoryData()}}>
                                 <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 3 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
                                     <Image source={require('./../../../assets/icons/list.png')} className="w-[30px] h-[30px]" />
                                     <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 3 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Riwayat</Text>
                                 </View>
                             </Pressable>
-                            <Pressable onPress={() => {setQuickAccess(4)}}>
+                            <Pressable onPress={() => {getHelp()}}>
                                 <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 4 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
                                     <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px]" />
                                     <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Petunjuk</Text>
@@ -262,7 +297,21 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
 
                         {!isLoading && !listSkelton && quickAccess === 3 && (
                             <View>
-                                
+                                { isAuth ? (
+                                    <VisitHistory/>
+                                ) : (
+                                    <View className="w-full flex flex-row justify-center items-center h-[200px]">
+                                        <Text style={{ color: '#888', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>
+                                        Login terlebih dahulu.
+                                        </Text>
+                                    </View>
+                                )}
+                            </View>
+                        )}
+
+                         {!isLoading && !listSkelton && quickAccess === 4 && (
+                            <View>
+                                <Help/>
                             </View>
                         )}
                         

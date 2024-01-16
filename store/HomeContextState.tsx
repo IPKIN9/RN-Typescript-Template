@@ -35,6 +35,19 @@ export interface IMedicalCardInterface {
   barcode: string
 }
 
+export interface IVisitHistory {
+  id: number;
+  visit_id: number;
+  ket: string;
+  tgl: string;
+  visit_sugest: number;
+  created_at: string;
+  updated_at: string;
+  profile_id: number;
+  no_rm: string;
+  no_registrasi: string;
+}
+
 interface HomeContextState {
   isLoading       : boolean
   setIsLoading    : (loading: boolean) => void;
@@ -46,6 +59,8 @@ interface HomeContextState {
   setDoctorList   : (payload: doctorInterface[]) => void;
   medicalCard     : IMedicalCardInterface
   setMedicalCard  : (payload: IMedicalCardInterface) => void;
+  visitHistory    : IVisitHistory[]
+  setVisitHistory : (payload: IVisitHistory[]) => void;
 }
 
 const HomeContext = createContext<HomeContextState | undefined>(undefined);
@@ -56,6 +71,7 @@ export const HomeContextProvider: React.FC<{ children: ReactNode }> = ({ childre
   const [pageLoading , setPageLoading ] = useState (true);
   const [scheduleList, setScheduleList] = useState<schedulesInterface[]>([]);
   const [doctorList, setDoctorList] = useState<doctorInterface[]>([]);
+  const [visitHistory, setVisitHistory] = useState<IVisitHistory[]>([]);
   const [medicalCard, setMedicalCard] = useState<IMedicalCardInterface>({
     id: 0,
     barcode: '',
@@ -74,7 +90,9 @@ export const HomeContextProvider: React.FC<{ children: ReactNode }> = ({ childre
     doctorList,
     setDoctorList,
     medicalCard,
-    setMedicalCard
+    setMedicalCard,
+    visitHistory,
+    setVisitHistory
   };
 
   return (

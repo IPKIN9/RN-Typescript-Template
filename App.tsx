@@ -38,7 +38,8 @@ export default function App() {
 
   return (
     <View style={styles.container} onLayout={onLayoutRootView}>
-      <NavigationContainer>
+      <GlobalProvider>
+        <NavigationContainer>
 
         <Stack.Navigator initialRouteName="Splash">
           <Stack.Screen
@@ -58,7 +59,8 @@ export default function App() {
             />
         </Stack.Navigator>
 
-      </NavigationContainer>
+        </NavigationContainer>
+      </GlobalProvider>
     </View>
   );
 }

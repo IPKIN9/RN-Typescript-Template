@@ -9,9 +9,11 @@ import Colors from './../shared/Colors'
 import Login from "../screens/pages/Login";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
+import { useGlobal } from '../store/GlobalStore'
 
 export default function TabNavigation()  {
   const Tab = createBottomTabNavigator();
+  const { isAuth } = useGlobal()
 
   const styles = StyleSheet.create({
     tabBarStyling: {
@@ -47,7 +49,7 @@ export default function TabNavigation()  {
 
   React.useEffect(() => {
     // Menjalankan pengecekan keberadaan token
-    checkTokenInStorage().then(result => setIsLoggedIn(result));
+    // checkTokenInStorage().then(result => setIsLoggedIn(result));
   }, []);
 
   const navigation: any = useNavigation();
@@ -91,7 +93,7 @@ export default function TabNavigation()  {
           tabBarInactiveTintColor: "#8E8E93",
         }}
       />
-       {isLoggedIn ? (
+       {isAuth ? (
         <Tab.Screen
           name="Profile"
           component={Profile}

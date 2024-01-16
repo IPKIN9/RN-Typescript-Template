@@ -1,5 +1,5 @@
 import React, { useEffect } from "react"
-import { HomeContextProvider, useHomeContext } from '../../store/HomeContextState'
+import { HomeContextProvider } from '../../store/HomeContextState'
 import HomeComp from '../component/Home'
 import { StackNavigationProp } from "@react-navigation/stack";
 
