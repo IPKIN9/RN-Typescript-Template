@@ -2,36 +2,36 @@
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 
 export interface schedulesInterface {
-  id: number,
-  polyId: number,
-  dokterId: number,
-  tgl: string,
-  startDate: string,
-  endDate: string,
-  created_at: string,
-  updated_at: string,
-  doctor_name: string,
-  poly: string,
+  id: number
+  schedule_id: number
+  polyId: number
+  start_time: string
+  end_time: string
+  created_at: string
+  updated_at: string
+  nama_poly: string
+  nama_ruangan: string
+  jam_praktek: string
 }
 
 export interface doctorInterface {
-  id: string;
-  nama: string;
-  alamat: string;
-  no_hp: string;
-  jk: string;
-  email: string;
-  pekerjaan: string;
-  status: string;
-  tgl_lahir: string;
-  agama: string;
+  id: string
+  nama: string
+  alamat: string
+  no_hp: string
+  jk: string
+  email: string
+  pekerjaan: string
+  status: string
+  tgl_lahir: string
+  agama: string
 }
 
 export interface IMedicalCardInterface {
-  id: number,
-  no_rm: string,
-  nama_profile: string,
-  tl: string,
+  id: number
+  no_rm: string
+  nama_profile: string
+  tl: string
   barcode: string
 }
 

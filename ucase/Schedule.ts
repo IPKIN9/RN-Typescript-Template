@@ -3,7 +3,6 @@ import { getData } from '../util/TokenConfig'
 
 const endPoint: string = "/api/mobile/schedule"
 interface endPointParamsInterface {
-    dokter_id: number | string | null
     today: string | null
 }
 const ScheduleApi = {
@@ -12,7 +11,7 @@ const ScheduleApi = {
         const token = await getData()
         console.log(params);
         
-        return Main().get(`${endPoint}?today=${params.today}`, {
+        return Main().get(`${endPoint}?today=${params.today?.toLocaleLowerCase()}`, {
             headers:{
                 Authorization: `Bearer ${token}`,
                 Accept: 'application/json'

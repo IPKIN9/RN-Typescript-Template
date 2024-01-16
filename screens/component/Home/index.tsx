@@ -17,6 +17,7 @@ import Animated, { Easing, useSharedValue, withSpring, withTiming, runOnJS } fro
 import { clearData, getData } from "../../../util/TokenConfig";
 import MedicalCardApi from '../../../ucase/MedicalCard'
 import { useIsFocused } from "@react-navigation/native";
+import 'moment/locale/id'
 
 type LoginFormProps = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
@@ -56,7 +57,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
     const getScheduleData = async () => {
         setListSkelton(true)
         setQuickAccess(1)
-        await ScheduleApi.getAllData({dokter_id: '', today: moment().format('YYYY-DD-MM')})
+        await ScheduleApi.getAllData({today: moment().format('dddd')})
         .then((res) => {
             if (res.data) {
                 const schdules = res.data as {
@@ -64,6 +65,8 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                 }
                 setScheduleList(schdules.data)
             }
+            console.log(res.data);
+            
         })
         .catch((err) => {
             if (err.response && err.response.status === 401) {
