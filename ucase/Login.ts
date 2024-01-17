@@ -1,5 +1,6 @@
 import Main from './Main'
 import { ILoginPayload } from '../store/LoginContextState'
+import { getData } from '../util/TokenConfig'
 
 const endPoint: string = "/oauth/token"
 const secretId: string = "9b0158e9-f899-4bba-9f1e-e45a1e2175db"
@@ -27,6 +28,16 @@ const LoginApi = {
 
         return Main().post(endPoint, completePayload, {
             headers: {
+                Accept: 'application/json'
+            }
+        })
+    },
+
+    async flashData () {
+        const token = await getData()
+        return Main().get('/api/mobile/logout', {
+            headers:{
+                Authorization: `Bearer ${token}`,
                 Accept: 'application/json'
             }
         })

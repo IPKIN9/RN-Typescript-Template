@@ -14,7 +14,6 @@ import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
 import { errorProduce } from '../../../util/ErrorLogConsoleReport'
 import { StackNavigationProp } from "@react-navigation/stack";
-import Animated, { Easing, useSharedValue, withSpring, withTiming, runOnJS } from 'react-native-reanimated';
 import { clearData, getData } from "../../../util/TokenConfig";
 import MedicalCardApi from '../../../ucase/MedicalCard'
 import { useIsFocused } from "@react-navigation/native";
