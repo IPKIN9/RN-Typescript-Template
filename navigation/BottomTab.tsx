@@ -11,7 +11,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 import { useGlobal } from '../store/GlobalStore'
 
-export default function TabNavigation()  {
+export default function TabNavigation() {
   const Tab = createBottomTabNavigator();
   const { isAuth } = useGlobal()
 
@@ -31,25 +31,7 @@ export default function TabNavigation()  {
     },
   });
 
-  const checkTokenInStorage = async () => {
-    try {
-      // Menggunakan AsyncStorage untuk mengecek token secara asynchronous
-      const token = await AsyncStorage.getItem('userToken');
-
-      // Jika token ditemukan di storage, return true
-      // Jika tidak ditemukan, atau terdapat kesalahan lainnya, return false
-      return !!token;
-    } catch (error) {
-      console.error('Error checking token in storage:', error);
-      return false;
-    }
-  };
-
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
-
   React.useEffect(() => {
-    // Menjalankan pengecekan keberadaan token
-    // checkTokenInStorage().then(result => setIsLoggedIn(result));
   }, []);
 
   const navigation: any = useNavigation();
@@ -63,6 +45,7 @@ export default function TabNavigation()  {
     <Tab.Navigator
       screenOptions={{
         headerShown: false,
+        tabBarHideOnKeyboard: true
       }}
     >
       <Tab.Screen
@@ -93,7 +76,7 @@ export default function TabNavigation()  {
           tabBarInactiveTintColor: "#8E8E93",
         }}
       />
-       {isAuth ? (
+      {isAuth ? (
         <Tab.Screen
           name="Profile"
           component={Profile}
