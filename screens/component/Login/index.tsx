@@ -1,4 +1,4 @@
-import React, { useEffect } from "react"
+import React, { useEffect, useState } from "react"
 import { ActivityIndicator, Image, Pressable, SafeAreaView, ScrollView, Text, TextInput, View } from "react-native"
 import { MaterialIcons, Ionicons } from '@expo/vector-icons';
 import Colors from "../../../shared/Colors"
@@ -15,6 +15,16 @@ type LoginFormProps = {
 
 const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
     const { isLoading, loginPayload, setIsLoading, setPageLoading, setLoginPayload } = useLoginContext()
+
+    interface IErrorMessage {
+        field: string
+        msg  : string
+    }
+
+    const [errrMsg, setErrMessage] = useState<IErrorMessage>({
+        field: '',
+        msg  : ''
+    })
     
     const handleInputChange = (fieldName: keyof ILoginPayload, text: string) => {
         setLoginPayload({
@@ -22,6 +32,15 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
             [fieldName]: text, // Mengubah nilai pada field yang diinginkan
         });
     };
+
+    const setOffMsg = () => {
+        setTimeout(() => {
+            setErrMessage({
+                field: '',
+                msg : ''
+            })
+        }, 3000);
+    }
 
     const checkForm = async () => {
         setIsLoading(true)
@@ -40,6 +59,16 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
              // handle error
             errorProduce(error)
             setIsLoading(false)
+
+            if (error.response) {
+                if (error.response.status !== 422) {
+                    setErrMessage({
+                        field: 'all',
+                        msg: 'Akun tidak ditemukan, Coba lagi'
+                    })
+                }
+                setOffMsg()
+            }
         });
     }
 
@@ -85,7 +114,14 @@ const LoginForm: React.FC<LoginFormProps> = ({ navigation }) => {
 
              <View className="w-full h-[240px] justify-start flex flex-col gap-y-[24px]">
                  <View className="flex flex-col gap-y-[12px]">
-                     <Text className="text-[12px] text-gray-500" style={{ fontFamily: 'Montserrat-SemiBold' }}>Username</Text>
+                     <View className="flex flex-row gap-x-[8px] justify-between">
+                        <Text className="text-[12px] text-gray-500" style={{ fontFamily: 'Montserrat-SemiBold' }}>Username</Text>
+                        {
+                            errrMsg.field.length >= 1 ? (
+                                <Text className="text-[12px] text-red-500 capitalize">{errrMsg.msg}</Text>
+                            ) : (<Text></Text>)
+                        }
+                     </View>
                      <TextInput
                         editable={!isLoading}
                         value={loginPayload.username}
