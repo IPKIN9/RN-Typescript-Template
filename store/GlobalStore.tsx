@@ -6,6 +6,8 @@ interface GlobalContextType {
   isAuth: boolean;
   setLoading: (loading: boolean) => void;
   setAuth: (auth: boolean) => void;
+  openCamera: boolean;
+  setOpenCamera: (payload: boolean) => void;
 }
 
 // Buat konteks untuk profil dan histori pembayaran
@@ -15,6 +17,7 @@ const GlobalContext = createContext<GlobalContextType | undefined>(undefined);
 export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const [isAuth, setAuth] = useState(false);
+  const [openCamera, setOpenCamera] = useState(false);
 
   return (
     <GlobalContext.Provider
@@ -23,6 +26,8 @@ export const GlobalProvider: React.FC<{ children: ReactNode }> = ({ children }) 
         setLoading,
         isAuth,
         setAuth,
+        openCamera,
+        setOpenCamera
       }}
     >
       {children}
