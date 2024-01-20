@@ -1,10 +1,17 @@
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useEffect, useState } from "react";
-import { Pressable, SafeAreaView, Text, TextInput, View } from "react-native";
+import {
+    Image,
+    Pressable,
+    SafeAreaView,
+    Text,
+    TextInput,
+    View,
+} from "react-native";
 import { MaterialIcons, Feather } from "@expo/vector-icons";
-import { Camera, CameraType } from 'expo-camera';
-import * as MediaLibrary from "expo-media-library"
-import CameraCom from "../Camera"
+import { Camera, CameraType } from "expo-camera";
+import * as MediaLibrary from "expo-media-library";
+import CameraCom from "../../pages/Camera";
 import { useGlobal } from "../../../store/GlobalStore";
 
 type StatsScreenProp = {
@@ -13,40 +20,21 @@ type StatsScreenProp = {
 
 const StatsComp: React.FC<StatsScreenProp> = ({ navigation }) => {
     const [passwordHide, setPasswordHide] = useState(true);
-    const { openCamera, setOpenCamera } = useGlobal()
-    // const [type, setType] = useState(CameraType.back);
-    // const [hasPermission, setHasPermission] = useState(false);
+    const { cameraImage, setCameraImage } = useGlobal();
 
-    // const toggleCameraType = () => {
-    //     setType(current => (current === CameraType.back ? CameraType.front : CameraType.back));
-    // }
-
-    // useEffect(() => {
-    //     (async () => {
-    //         const { status } = await Camera.requestCameraPermissionsAsync();
-    //         setHasPermission(status === 'granted');
-    //     })();
-    // }, []);
-
-    // if (hasPermission === null) {
-    //     return <View />;
-    // }
-
-    // if (hasPermission === false) {
-    //     return <Text>No access to camera</Text>;
-    // }
-
+    const [stepRegist, setStepRegist] = useState('user')
     return (
         <View>
-            <SafeAreaView>
-                <View className="px-[8px] pt-[32px] pb-[24px] flex flex-col gap-y-[18px]">
+            {stepRegist === 'user' ? (
+                <SafeAreaView>
+                <View className="px-[8px] pt-[24px] pb-[24px] flex flex-col gap-y-[18px]">
                     <Text
                         style={{ fontFamily: "Montserrat-SemiBold" }}
                         className="text-[14px] pl-[10px]"
                     >
                         DAFTAR BARU
                     </Text>
-                    <View className="bg-white rounded-[4px] px-[18px] pb-[24px] flex flex-col gap-y-[24px] w-full h-fit shadow-md">
+                    <View className="bg-white rounded-[4px] px-[18px] pb-[24px] flex flex-col gap-y-[18px] w-full h-fit shadow-md">
                         <TextInput
                             className="py-[8px] px-[14px] rounded-[11px] border-[1px] border-gray-300"
                             placeholder="Username"
@@ -68,20 +56,40 @@ const StatsComp: React.FC<StatsScreenProp> = ({ navigation }) => {
                                 />
                             </Pressable>
                         </View>
-                        <Text className="text-red-500">* Sertakan foto ktp anda untuk keperluan verifikasi pihak admin terkait data diri anda</Text>
+                        <Text className="text-red-500 text-[12px]">
+                            * Sertakan foto ktp anda untuk keperluan verifikasi
+                            pihak admin terkait data diri anda
+                        </Text>
                         <View className="flex flex-col gap-y-[14px] items-center">
-                            <Pressable onPress={() => { setOpenCamera(true) }} className="flex flex-row p-[18px] rounded-[11px] border-[1px] border-gray-300">
+                            <Pressable
+                                onPress={() => {
+                                    navigation.navigate("Camera");
+                                }}
+                                className="flex flex-row p-[11px] rounded-[11px] border-[1px] border-gray-300"
+                            >
                                 <Feather name="camera" size={28} color="gray" />
+                            </Pressable>
+                            <View className="py-[20px] w-[270px] h-[200px]">
+                                <Image
+                                    source={{ uri: cameraImage ? cameraImage : "" }}
+                                    className="w-full h-full"
+                                />
+                            </View>
+                        </View>
+                        <View className="w-full h-fit bg-white flex flex-row justify-center pb-[24px]">
+                            <Pressable className="py-[11px] px-[24px] h-fit w-fit rounded-[8px] bg-blue-700">
+                                <Text className="text-white text-[12px]" style={{ fontFamily: "Montserrat-SemiBold" }}>Lanjutkan</Text>
                             </Pressable>
                         </View>
                     </View>
                 </View>
             </SafeAreaView>
-            {openCamera && (
-                <CameraCom />
+            ) : (
+                <View></View>
             )}
         </View>
     );
 };
+
 
 export default StatsComp;

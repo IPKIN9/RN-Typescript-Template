@@ -9,6 +9,7 @@ import BottomTab from './navigation/BottomTab'
 import Login from './screens/pages/Login'
 import Splash from './screens/pages/Splash'
 import { createStackNavigator } from '@react-navigation/stack';
+import CameraComp from './screens/pages/Camera';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -55,6 +56,11 @@ export default function App() {
           <Stack.Screen
             name="MainHome"
             component={BottomTab}
+            options={{ headerShown: false }}
+            />
+          <Stack.Screen
+            name="Camera"
+            component={CameraComp}
             options={{ headerShown: false }}
             />
         </Stack.Navigator>
