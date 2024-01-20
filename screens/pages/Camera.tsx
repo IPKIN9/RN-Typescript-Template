@@ -96,7 +96,7 @@ const CameraComp: React.FC = ({}) => {
                         }}
                     >
                         <Image
-                            source={{ uri: cameraImage }}
+                            source={{ uri: cameraImage ? cameraImage : "" }}
                             className="w-[32px] h-[32px]"
                         />
                     </Pressable>
