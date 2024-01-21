@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { BackHandler, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
+import { BackHandler, Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
 import Colors from "../../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
 import Schedule from './../Schedule'
@@ -146,6 +146,9 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         }, 1000);
     };
 
+    const CARD_WIDTH = Dimensions.get("window").width * 0.8
+    const SKE_WIDTH = CARD_WIDTH - 32
+
     useEffect(() => {
         moment.updateLocale('id', {
             months: [
@@ -195,9 +198,9 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                 </View>
                 <View className="relative w-full h-[480px] bg-gray-50 rounded-tr-[41px] px-0 overflow-hidden">
                 <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
-                    {/* {isLoading && (
-                        <CardSkeleton />
-                    )} */}
+                    {isLoading && (
+                        <CardSkeleton width={SKE_WIDTH} />
+                    )}
 
                    {!isLoading && (
                      <View className="h-[180px] w-full mt-12 px-4 py-2 ">
@@ -232,7 +235,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                         <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">QUICK ACCESS</Text>
                         </View>
 
-                        {/* {isLoading && (<QuickAccessSkelton />)} */}
+                        {isLoading && (<QuickAccessSkelton width={SKE_WIDTH} />)}
 
                         {!isLoading && (
                             <View className="flex flex-row justify-center gap-x-6 h-[60px] w-full mt-8">
@@ -272,7 +275,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                         
                         <View className="flex flex-col justify-start items-center px-2 mt-2">
 
-                            {/* {(isLoading || listSkelton) && <ListSkeleton />} */}
+                            {(isLoading || listSkelton) && <ListSkeleton width={SKE_WIDTH} />}
 
                             {!isLoading && quickAccess === 1 && scheduleList.length >= 1 && (
                             <Schedule />
