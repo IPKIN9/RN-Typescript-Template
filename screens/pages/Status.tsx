@@ -10,7 +10,8 @@ import {
 import { MaterialIcons } from "@expo/vector-icons";
 import Colors from "../../shared/Colors";
 import { StackNavigationProp } from "@react-navigation/stack";
-import StatsComp from '../component/Status'
+import StatsComp from "../component/Status";
+import { RegisterContextProvider } from "../../store/RegisterContextState";
 
 type StatsScreenProp = {
     navigation: StackNavigationProp<{}>;
@@ -18,23 +19,25 @@ type StatsScreenProp = {
 
 const Status: React.FC<StatsScreenProp> = ({ navigation }) => {
     return (
-        <View className="h-full w-full bg-gray-100 flex flex-col gap-y-[12px]">
-            <View className="h-[12%] w-full flex flex-col justify-center pt-[12%] bg-white pb-[10px]">
-                <View className="w-full h-fit flex flex-row justify-between px-[16px] items-center">
-                    <Text className="font-semibold text-18px text-gray-900">
-                        STATUS PENDAFTARAN
-                    </Text>
-                    <Text>
-                        <MaterialIcons
-                            name="receipt-long"
-                            size={24}
-                            color="gray"
-                        />
-                    </Text>
+        <RegisterContextProvider>
+            <View className="h-full w-full bg-gray-100 flex flex-col gap-y-[12px]">
+                <View className="h-[12%] w-full flex flex-col justify-center pt-[12%] bg-white pb-[10px]">
+                    <View className="w-full h-fit flex flex-row justify-between px-[16px] items-center">
+                        <Text className="font-semibold text-18px text-gray-900">
+                            STATUS PENDAFTARAN
+                        </Text>
+                        <Text>
+                            <MaterialIcons
+                                name="receipt-long"
+                                size={24}
+                                color="gray"
+                            />
+                        </Text>
+                    </View>
                 </View>
+                <StatsComp navigation={navigation} />
             </View>
-            <StatsComp navigation={ navigation } />
-        </View>
+        </RegisterContextProvider>
     );
 };
 

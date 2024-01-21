@@ -1,6 +1,6 @@
 import React, { ReactNode, createContext, useContext, useState } from "react";
 
-interface FormData {
+export interface IFormData {
     nik: string;
     email: string;
     password: string;
@@ -18,8 +18,10 @@ interface RegisterContextState {
     setIsLoading: (payload: boolean) => void;
     pageLoading: boolean;
     setPageLoading: (payload: boolean) => void;
-    registerForm: FormData
-    setRegisterForm: (payload: FormData) => void;
+    formStep: number;
+    setFormStep: (payload: number) => void;
+    registerForm: IFormData
+    setRegisterForm: (payload: IFormData) => void;
 }
 
 const RegisterContext = createContext<RegisterContextState | undefined>(
@@ -28,8 +30,9 @@ const RegisterContext = createContext<RegisterContextState | undefined>(
 export const RegisterContextProvider: React.FC<{ children: ReactNode }> = ({
     children,
 }) => {
-    const [isLoading, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(true);
+    const [formStep, setFormStep] = useState(1);
     const [registerForm, setRegisterForm] = useState({
         nik: "",
         email: "",
@@ -38,7 +41,7 @@ export const RegisterContextProvider: React.FC<{ children: ReactNode }> = ({
         nama: "",
         alamat: "",
         jk: "",
-        agama: "",
+        agama: "islam",
         status_nikah: 0 ,
         pekerjaan: "",
         kewarganegaraan: "",
@@ -50,7 +53,9 @@ export const RegisterContextProvider: React.FC<{ children: ReactNode }> = ({
         setIsLoading,
         setPageLoading,
         registerForm,
-        setRegisterForm
+        setRegisterForm,
+        formStep,
+        setFormStep
     };
     return (
         <RegisterContext.Provider value={initialState}>
