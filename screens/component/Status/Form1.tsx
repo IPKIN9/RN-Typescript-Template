@@ -10,6 +10,7 @@ import {
     TouchableWithoutFeedback,
     Keyboard,
     ScrollView,
+    Platform,
 } from "react-native";
 import { MaterialIcons, Feather, Ionicons } from "@expo/vector-icons";
 import { Camera, CameraType } from "expo-camera";
@@ -18,6 +19,11 @@ import {
     IFormData,
     useRegisterContext,
 } from "../../../store/RegisterContextState";
+
+import RegisterApi from "../../../ucase/Register";
+import { errorProduce } from "../../../util/ErrorLogConsoleReport";
+import * as FileSystem from "expo-file-system";
+import { FlipType, SaveFormat, manipulateAsync } from "expo-image-manipulator";
 
 type Form1ScreenProp = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
@@ -50,8 +56,36 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
     };
 
     const continueProgress = () => {
-        setFormStep(2)
-    }
+        // setFormStep(2);
+        getImageToData();
+    };
+
+    const getImageToData = async () => {
+        // setIsLoading(true);
+        console.log(cameraImage);
+
+        const formData = new FormData();
+
+        // Membaca file sebagai base64 menggunakan expo-file-system
+        const base64 = await FileSystem.readAsStringAsync(
+            cameraImage as string,
+            {
+                encoding: FileSystem.EncodingType.Base64,
+            }
+        );
+
+        formData.append("file", `data:image/jpeg;base64,${base64}`);
+        formData.append("email", registerForm.email)
+
+        await RegisterApi.registerUser(formData)
+            .then((res) => {
+                console.log(res);
+            })
+            .catch((err) => {
+                errorProduce(err);
+                console.error(err);
+            });
+    };
 
     useEffect(() => {
         (async () => {
@@ -131,8 +165,14 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
                         </Pressable>
                         {!cameraImage && (
                             <View className="w-full h-[140px] flex flex-col justify-center items-center">
-                                <Ionicons name="image-outline" size={70} color="gray" />
-                                <Text className="text-gray-400">Belum ambil gambar</Text>
+                                <Ionicons
+                                    name="image-outline"
+                                    size={70}
+                                    color="gray"
+                                />
+                                <Text className="text-gray-400">
+                                    Belum ambil gambar
+                                </Text>
                             </View>
                         )}
                         {cameraImage && (
@@ -151,7 +191,12 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
                             registerForm.password.length >= 5 &&
                             registerForm.password_confirmation.length >= 5 &&
                             cameraImage && (
-                                <Pressable onPress={() => {continueProgress()}} className="py-[11px] px-[24px] h-fit w-fit rounded-[8px] bg-blue-700">
+                                <Pressable
+                                    onPress={() => {
+                                        continueProgress();
+                                    }}
+                                    className="py-[11px] px-[24px] h-fit w-fit rounded-[8px] bg-blue-700"
+                                >
                                     <Text
                                         className="text-white text-[12px]"
                                         style={{

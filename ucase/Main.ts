@@ -6,7 +6,7 @@ interface IAxiosConfig extends AxiosRequestConfig {
 
 const createCustomAxiosInstance = (): AxiosInstance => {
     const axiosConfig: IAxiosConfig = {
-        baseURL: "http://192.168.1.101:8009",
+        baseURL: "http://192.168.1.102:8009",
         responseType: 'json',
         withCredentials: true,
     };

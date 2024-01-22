@@ -146,7 +146,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         }, 1000);
     };
 
-    const CARD_WIDTH = Dimensions.get("window").width * 0.8
+    const CARD_WIDTH = Dimensions.get("window").width * 1.5
     const SKE_WIDTH = CARD_WIDTH - 32
 
     useEffect(() => {

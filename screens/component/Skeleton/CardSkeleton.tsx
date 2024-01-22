@@ -14,7 +14,7 @@ const CardSkeleton: React.FC<SkeltonProps> = ({ width }) => {
             Animated.timing(translateX, {
                 toValue: width,
                 useNativeDriver: true,
-                duration: 1000,
+                duration: 1100,
             })
         ).start();
     }, [width]);
@@ -22,15 +22,13 @@ const CardSkeleton: React.FC<SkeltonProps> = ({ width }) => {
         <View className="p-[24px]">
             <View className="h-[180px] w-full rounded-[14px] bg-gray-200 overflow-hidden">
                 <Animated.View
-                    className="w-full h-full"
-                    style={{ transform: [{ translateX: translateX }] }}
-                >
-                    <LinearGradient
-                        colors={["transparent", "rgba(0,0,0,0.03)", "transparent"]}
-                        className="w-full h-full"
-                        start={{ x: 1, y: 1 }}
-                    />
-                </Animated.View>
+                    style={{
+                        width: "100%",
+                        height: "100%",
+                        transform: [{ translateX: translateX }],
+                        backgroundColor: "rgba(0,0,0,0.03)",
+                    }}
+                />
             </View>
         </View>
     );
