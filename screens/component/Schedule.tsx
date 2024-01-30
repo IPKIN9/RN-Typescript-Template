@@ -20,7 +20,7 @@ function isCurrentTimeBetween(start: string, end: string): boolean {
 }
 
 const RenderItem: React.FC<schedulesInterface> = ({ nama_poly, nama_ruangan, start_time, end_time }) => (
-  <View className="flex flex-row justify-between py-2 px-2 w-full rounded-lg">
+  <View className="flex flex-row justify-between pt-2 pb-8 px-2 w-full rounded-lg">
     <View className="flex flex-col justify-center gap-y-0">
       <Text className="text-[15px] text-gray-700 capitalize">Poly: {nama_poly}</Text>
       <Text className="text-[11px] text-gray-500 capitalize">Ruangan: {nama_ruangan}</Text>

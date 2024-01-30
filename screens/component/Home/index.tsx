@@ -45,7 +45,15 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
             const medicalCard = res.data as {
                 data: IMedicalCardInterface
             }
-            setMedicalCard(medicalCard.data)
+            setMedicalCard({
+                id: medicalCard.data.id,
+                barcode: medicalCard.data.barcode,
+                nama_profile: medicalCard.data.nama_profile,
+                no_rm: medicalCard.data.no_rm,
+                tl: medicalCard.data.tl,
+            })
+            console.log(medicalCard.data);
+            
         })
         .catch((err) => {
             console.log(err.response);
@@ -208,7 +216,7 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                                 <View className="flex flex-row justify-between items-start">
                                 <View className="flex flex-col items-start">
                                     <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px] text-gray-700">RS.Undata Palu</Text>
-                                    {medicalCard.id >= 1 && (
+                                    {isAuth && medicalCard.id >= 1 && (
                                         <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-gray-700">{medicalCard.nama_profile}</Text>
                                     )}
                                 </View>
