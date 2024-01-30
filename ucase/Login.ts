@@ -3,8 +3,8 @@ import { ILoginPayload } from '../store/LoginContextState'
 import { getData } from '../util/TokenConfig'
 
 const endPoint: string = "/oauth/token"
-const secretId: string = "9b377d2d-7ba8-4408-933e-b6436e97e2db"
-const seceretClient: string = "1rmhRJmxY4zvOQYfCQOSlMvNQiSfgxAH1481gDKH"
+const secretId: string = "9b378c6a-1880-44b0-b19c-927e876bb7e6"
+const seceretClient: string = "4ZMwjIx0JzxuWMDnoDgsWl4cgZkV86428eX3DOq7"
 
 interface ICompletePayload {
     grant_type: string

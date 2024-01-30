@@ -62,9 +62,7 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
     };
 
     const getImageToData = async () => {
-        // setIsLoading(true);
-        console.log(cameraImage);
-        // setIsLoading(true);
+        setIsLoading(true);
 
         const formData = new FormData();
 
@@ -88,7 +86,7 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
                     nama: result.nama,
                     nik: result.nik,
                     alamat: result.alamat,
-                    agama: "",
+                    agama: "islam",
                     jk: result.jk,
                     pekerjaan: "",
                     email: registerForm.email,
