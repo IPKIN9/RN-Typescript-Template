@@ -7,37 +7,31 @@ const Help: React.FC = () => {
             <View style={styles.step}>
                 <Text style={styles.stepNumber}>1</Text>
                 <Text style={styles.stepText}>
-                    Basahi tangan dengan air bersih.
+                    Pilih menu daftar.
                 </Text>
             </View>
             <View style={styles.step}>
                 <Text style={styles.stepNumber}>2</Text>
                 <Text style={styles.stepText}>
-                    Gunakan sabun dan gosok tangan secara menyeluruh.
+                    Masukan username dan password.
                 </Text>
             </View>
             <View style={styles.step}>
                 <Text style={styles.stepNumber}>3</Text>
                 <Text style={styles.stepText}>
-                    Bersihkan bagian dalam jari-jari.
+                    Tekan icon kamera, lalu fotokan KTP anda.
                 </Text>
             </View>
             <View style={styles.step}>
                 <Text style={styles.stepNumber}>4</Text>
                 <Text style={styles.stepText}>
-                    Gosok telapak tangan dan punggung tangan.
+                    Masukan kewarganegaraan dan alamat.
                 </Text>
             </View>
             <View style={styles.step}>
                 <Text style={styles.stepNumber}>5</Text>
                 <Text style={styles.stepText}>
-                    Bilas tangan dengan air bersih hingga bersih.
-                </Text>
-            </View>
-            <View style={styles.step}>
-                <Text style={styles.stepNumber}>6</Text>
-                <Text style={styles.stepText}>
-                    Keringkan tangan dengan handuk atau kertas.
+                    Klik daftar dan tunggu prosesnya selesai.
                 </Text>
             </View>
         </View>
