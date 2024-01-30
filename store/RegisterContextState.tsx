@@ -13,6 +13,14 @@ export interface IFormData {
     pekerjaan: string;
     kewarganegaraan: string;
 }
+
+export interface IOcrResponse {
+    nik: string
+    nama: string
+    ttl: string
+    jk: string
+    alamat: string
+}
 interface RegisterContextState {
     isLoading: boolean;
     setIsLoading: (payload: boolean) => void;

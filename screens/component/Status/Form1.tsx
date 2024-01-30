@@ -17,6 +17,7 @@ import { Camera, CameraType } from "expo-camera";
 import { useGlobal } from "../../../store/GlobalStore";
 import {
     IFormData,
+    IOcrResponse,
     useRegisterContext,
 } from "../../../store/RegisterContextState";
 
@@ -63,6 +64,7 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
     const getImageToData = async () => {
         // setIsLoading(true);
         console.log(cameraImage);
+        // setIsLoading(true);
 
         const formData = new FormData();
 
@@ -75,16 +77,33 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
         );
 
         formData.append("file", `data:image/jpeg;base64,${base64}`);
-        formData.append("email", registerForm.email)
+        formData.append("email", registerForm.email);
 
-        await RegisterApi.registerUser(formData)
-            .then((res) => {
-                console.log(res);
+        await RegisterApi.getKtpData(formData)
+            .then(async (res) => {
+                const result = res.data.data as IOcrResponse;
+                console.log(res.data.data);
+                
+                setRegisterForm({
+                    nama: result.nama,
+                    nik: result.nik,
+                    alamat: result.alamat,
+                    agama: "",
+                    jk: result.jk,
+                    pekerjaan: "",
+                    email: registerForm.email,
+                    kewarganegaraan: "",
+                    status_nikah: 0,
+                    password: registerForm.password,
+                    password_confirmation: registerForm.password_confirmation,
+                });
+                setFormStep(2);
             })
             .catch((err) => {
                 errorProduce(err);
                 console.error(err);
             });
+            setIsLoading(false)
     };
 
     useEffect(() => {
@@ -192,19 +211,33 @@ const Form1: React.FC<Form1ScreenProp> = ({ navigation }) => {
                             registerForm.password_confirmation.length >= 5 &&
                             cameraImage && (
                                 <Pressable
+                                    disabled={isLoading}
                                     onPress={() => {
                                         continueProgress();
                                     }}
-                                    className="py-[11px] px-[24px] h-fit w-fit rounded-[8px] bg-blue-700"
+                                    className="py-[11px] px-[24px] h-fit w-fit rounded-[8px] bg-blue-700 flex flex-row gap-x-2"
                                 >
-                                    <Text
-                                        className="text-white text-[12px]"
-                                        style={{
-                                            fontFamily: "Montserrat-SemiBold",
-                                        }}
-                                    >
-                                        Lanjutkan
-                                    </Text>
+                                    {!isLoading ? (
+                                        <Text
+                                            className="text-white text-[12px]"
+                                            style={{
+                                                fontFamily:
+                                                    "Montserrat-SemiBold",
+                                            }}
+                                        >
+                                            Lanjutkan
+                                        </Text>
+                                    ) : (
+                                        <Text
+                                            className="text-white text-[12px]"
+                                            style={{
+                                                fontFamily:
+                                                    "Montserrat-SemiBold",
+                                            }}
+                                        >
+                                            Pengenalan Data..
+                                        </Text>
+                                    )}
                                 </Pressable>
                             )}
                     </View>
