@@ -1,6 +1,7 @@
 import { StackNavigationProp } from "@react-navigation/stack";
 import React, { useEffect, useState } from "react";
 import {
+    BackHandler,
     Image,
     Pressable,
     SafeAreaView,
@@ -17,20 +18,48 @@ import Form1 from "./Form1";
 import Form2 from "./Form2";
 import WaitingRoom from "./WaitingRoom"
 import Visit from "./Visit"
+import { getData } from "../../../util/TokenConfig";
 
 type StatsScreenProp = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
 };
 
 const StatsComp: React.FC<StatsScreenProp> = ({ navigation }) => {
-    const { isAuth } = useGlobal()
     const { formStep, setFormStep } = useRegisterContext();
     const [hasPermission, setHasPermission] = useState<boolean | null>(null);
+    const { setAuth, isAuth, scheduleList } = useGlobal()
+
+    const checkLogin = async () => {
+        setAuth(await getData() ? true : false)
+    }
+
+    const refreshMainHome = async () => {
+        checkLogin()
+    };
+
     useEffect(() => {
         (async () => {
             const { status } = await Camera.requestCameraPermissionsAsync();
             setHasPermission(status === "granted");
         })();
+
+        const unsubscribe = navigation.addListener('focus', () => {
+            refreshMainHome();
+        });
+        const handleBackButton = () => {
+            // Handle the back button press
+            // You can add your own logic here before exiting the app if needed
+            // For now, we are just exiting the app
+            BackHandler.exitApp();
+            return true; // Prevent default behavior (closing the app)
+        };
+        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
+
+        // Remove event listener when the component is unmounted
+        return () => {
+          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+          unsubscribe();
+        };
     }, []);
     return (
         <View>

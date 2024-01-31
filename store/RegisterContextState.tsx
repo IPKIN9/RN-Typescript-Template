@@ -40,7 +40,7 @@ export const RegisterContextProvider: React.FC<{ children: ReactNode }> = ({
 }) => {
     const [isLoading, setIsLoading] = useState(false);
     const [pageLoading, setPageLoading] = useState(true);
-    const [formStep, setFormStep] = useState(3);
+    const [formStep, setFormStep] = useState(1);
     const [registerForm, setRegisterForm] = useState({
         nik: "",
         email: "",

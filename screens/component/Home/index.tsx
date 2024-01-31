@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react"
-import { BackHandler, Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
+import { Alert, BackHandler, Dimensions, Image, Pressable, SafeAreaView, ScrollView, Text, View } from "react-native"
 import Colors from "../../../shared/Colors"
 import { SimpleLineIcons, Feather } from '@expo/vector-icons';
 import Schedule from './../Schedule'
@@ -7,8 +7,8 @@ import DoctorList from './../DocktorList'
 import CardSkeleton from '../Skeleton/CardSkeleton'
 import QuickAccessSkelton from '../Skeleton/QuickAccessSkelton'
 import ListSkeleton from '../Skeleton/ListSkeleton'
-import { schedulesInterface, useHomeContext, doctorInterface, IMedicalCardInterface, IVisitHistory } from '../../../store/HomeContextState'
-import { useGlobal } from '../../../store/GlobalStore'
+import { useHomeContext, doctorInterface, IMedicalCardInterface, IVisitHistory } from '../../../store/HomeContextState'
+import { schedulesInterface, useGlobal } from '../../../store/GlobalStore'
 import ScheduleApi from "../../../ucase/Schedule";
 import DoctorApi from "../../../ucase/Doctor";
 import moment from "moment";
@@ -26,14 +26,16 @@ type LoginFormProps = {
     navigation: StackNavigationProp<any>; // Adjust the type based on your navigation stack
 };
 
-const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => { 
+const HomeComp: React.FC<LoginFormProps> = ({ navigation }) => {
     const isFocused = useIsFocused();
-    const { isLoading, setIsLoading, setScheduleList, scheduleList, setDoctorList, medicalCard, setMedicalCard, visitHistory, setVisitHistory } = useHomeContext()
+    const { isLoading, setIsLoading, setDoctorList, medicalCard, setMedicalCard, visitHistory, setVisitHistory } = useHomeContext()
+    const { setScheduleList, scheduleList, } = useGlobal()
     const { setAuth, isAuth } = useGlobal()
     const [dateNow, setDateNow] = useState('')
     const [quickAccess, setQuickAccess] = useState(1)
     const [listSkelton, setListSkelton] = useState(false)
     const [isLogin, setIsLogin] = useState(false)
+    const [alerts, setAlerts] = useState(false)
 
     const checkLogin = async () => {
         setAuth(await getData() ? true : false)
@@ -41,53 +43,53 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
 
     const getMedicalCard = async () => {
         await MedicalCardApi.getAllData()
-        .then((res) => {
-            const medicalCard = res.data as {
-                data: IMedicalCardInterface
-            }
-            setMedicalCard({
-                id: medicalCard.data.id,
-                barcode: medicalCard.data.barcode,
-                nama_profile: medicalCard.data.nama_profile,
-                no_rm: medicalCard.data.no_rm,
-                tl: medicalCard.data.tl,
+            .then((res) => {
+                const medicalCard = res.data as {
+                    data: IMedicalCardInterface
+                }
+                setMedicalCard({
+                    id: medicalCard.data.id,
+                    barcode: medicalCard.data.barcode,
+                    nama_profile: medicalCard.data.nama_profile,
+                    no_rm: medicalCard.data.no_rm,
+                    tl: medicalCard.data.tl,
+                })
+                console.log(medicalCard.data);
+
             })
-            console.log(medicalCard.data);
-            
-        })
-        .catch((err) => {
-            console.log(err.response);
-            
-            if (err.response && err.response.status === 401) {
-                clearData()
-            } else {
-                errorProduce(err)
-            }
-        })
+            .catch((err) => {
+                console.log(err.response);
+
+                if (err.response && err.response.status === 401) {
+                    clearData()
+                } else {
+                    errorProduce(err)
+                }
+            })
     }
 
     const getScheduleData = async () => {
         setListSkelton(true)
         setQuickAccess(1)
-        await ScheduleApi.getAllData({today: moment().format('dddd')})
-        .then((res) => {
-            if (res.data) {
-                const schdules = res.data as {
-                    data: schedulesInterface[]
+        await ScheduleApi.getAllData({ today: moment().format('dddd') })
+            .then((res) => {
+                if (res.data) {
+                    const schdules = res.data as {
+                        data: schedulesInterface[]
+                    }
+                    setScheduleList(schdules.data)
                 }
-                setScheduleList(schdules.data)
-            }
-            console.log(res.data);
-            
-        })
-        .catch((err) => {
-            if (err.response && err.response.status === 401) {
-                clearData()
-                navigation.navigate('Login')
-            } else {
-                errorProduce(err)
-            }
-        })
+                console.log(res.data);
+
+            })
+            .catch((err) => {
+                if (err.response && err.response.status === 401) {
+                    clearData()
+                    navigation.navigate('Login')
+                } else {
+                    errorProduce(err)
+                }
+            })
 
         setTimeout(() => {
             setListSkelton(false)
@@ -98,15 +100,15 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         setListSkelton(true)
         setQuickAccess(2)
         await DoctorApi.getAllData()
-        .then((res) => {
-            const schdules = res.data as {
-                data: doctorInterface[]
-            }
-            setDoctorList(schdules.data)
-        })
-        .catch((err) => {
-            errorProduce(err)
-        })
+            .then((res) => {
+                const schdules = res.data as {
+                    data: doctorInterface[]
+                }
+                setDoctorList(schdules.data)
+            })
+            .catch((err) => {
+                errorProduce(err)
+            })
 
         setTimeout(() => {
             setListSkelton(false)
@@ -118,15 +120,15 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         setQuickAccess(3)
         if (isAuth) {
             await VisitHistoryApi.getAllData()
-            .then((res) => {
-                const visitHistory = res.data as {
-                    data: IVisitHistory[]
-                }
-                setVisitHistory(visitHistory.data)
-            })
-            .catch((err) => {
-                errorProduce(err)
-            })
+                .then((res) => {
+                    const visitHistory = res.data as {
+                        data: IVisitHistory[]
+                    }
+                    setVisitHistory(visitHistory.data)
+                })
+                .catch((err) => {
+                    errorProduce(err)
+                })
         }
 
         setTimeout(() => {
@@ -150,12 +152,19 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         setTimeout(() => {
             setIsLoading(false)
             console.log("sudah down");
-            
+
         }, 1000);
     };
 
     const CARD_WIDTH = Dimensions.get("window").width * 1.5
     const SKE_WIDTH = CARD_WIDTH - 32
+
+    const showSuccessAlert = () => {
+        setAlerts(true)
+        setTimeout(() => {
+            setAlerts(false)
+        }, 1000);
+    };
 
     useEffect(() => {
         moment.updateLocale('id', {
@@ -164,14 +173,14 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
             ],
         });
-          
+
         const currentDate = moment().format('DD MMMM');
         setDateNow(currentDate)
 
         const unsubscribe = navigation.addListener('focus', () => {
             refreshMainHome();
         });
-    
+
         // Membersihkan listener saat komponen tidak lagi terfokus
 
         const handleBackButton = () => {
@@ -185,8 +194,8 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
 
         // Remove event listener when the component is unmounted
         return () => {
-          BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-          unsubscribe();
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
+            unsubscribe();
         };
 
     }, [navigation])
@@ -194,15 +203,15 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
     return (
         <View>
             <View className="h-full w-full bg-gray-100">
-                <View className="fixed w-full h-1/3 rounded-bl-[41px] flex flex-row justify-center" style={{backgroundColor: Colors.primary.two}}>
-                <View className="flex flex-col items-start h-full justify-center mt-1">
-                    <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-[18px] text-white">Halo, Mamang</Text>
-                    <Text style={{ fontFamily: 'Montserrat-Bold' }} className="mt-1 text-[18px] text-white">Lagi butuh apa hari ini?</Text>
-                    <View className="mt-8">
-                    <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-[13px] text-white">Cek jadwal dokter hari ini...</Text>
+                <View className="fixed w-full h-1/3 rounded-bl-[41px] flex flex-row justify-center" style={{ backgroundColor: Colors.primary.two }}>
+                    <View className="flex flex-col items-start h-full justify-center mt-1">
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-[18px] text-white">Halo, Apa Kabar</Text>
+                        <Text style={{ fontFamily: 'Montserrat-Bold' }} className="mt-1 text-[18px] text-white">Lagi butuh apa hari ini?</Text>
+                        <View className="mt-8">
+                            <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-[13px] text-white">Jangan lupa cek jadwal dokter hari ini...</Text>
+                        </View>
                     </View>
-                </View>
-                <View className="w-12 h-14 absolute z-0 right-0 bottom-[-50px]" style={{backgroundColor: Colors.primary.two}}></View>
+                    <View className="w-12 h-14 absolute z-0 right-0 bottom-[-50px]" style={{ backgroundColor: Colors.primary.two }}></View>
                 </View>
                 <View className="relative w-full h-[520px] bg-gray-50 rounded-tr-[41px] px-0 overflow-hidden">
                     <ScrollView horizontal={false} showsVerticalScrollIndicator={false}>
@@ -210,122 +219,129 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
                             <CardSkeleton width={SKE_WIDTH} />
                         )}
 
-                    {!isLoading && (
-                        <View className="h-[180px] w-full mt-12 px-4 py-2 ">
-                            <View className={`h-full w-full rounded-3xl p-3 shadow-md shadow-gray-500 border-[1px] ${isAuth ? 'border-orange-400 bg-orange-50' : 'border-blue-400 bg-blue-50'}`}>
-                                <View className="flex flex-row justify-between items-start">
-                                <View className="flex flex-col items-start">
-                                    <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px] text-gray-700">RS.Undata Palu</Text>
-                                    {isAuth && medicalCard.id >= 1 && (
-                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-gray-700">{medicalCard.nama_profile}</Text>
-                                    )}
+                        {!isLoading && (
+                            <View className="h-[180px] w-full mt-12 px-4 py-2 ">
+                                <View className={`h-full w-full rounded-3xl p-3 shadow-md shadow-gray-500 border-[1px] ${isAuth ? 'border-orange-400 bg-orange-50' : 'border-blue-400 bg-blue-50'}`}>
+                                    <View className="flex flex-row justify-between items-start">
+                                        <View className="flex flex-col items-start">
+                                            <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px] text-gray-700">RS.Undata Palu</Text>
+                                            {isAuth && medicalCard.id >= 1 && (
+                                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className="text-gray-700">{medicalCard.nama_profile}</Text>
+                                            )}
+                                        </View>
+                                        <SimpleLineIcons name="options" size={18} color="#f97316" />
+                                    </View>
+                                    <Pressable onPress={() => { showSuccessAlert() }} className="flex flex-row justify-center items-center h-1/2 w-full mt-2">
+                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 text-xl ${isAuth ? 'text-orange-500' : 'text-blue-400'} mt-2`}>{isAuth && medicalCard.id >= 1 ? medicalCard.no_rm : !isAuth ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar'}</Text>
+                                        {/* {medicalCard.id >= 1 && (
+                                            <View className="">
+                                                {alerts && (
+                                                    <View className="w-[50px] flex flex-row absolute z-10 top-[-35px] right-[-10px] px-[8px] py-[2px] bg-blue-200 rounded-md">
+                                                        <Text className="text-[9px] w-full text-center">Berhasil disalin</Text>
+                                                    </View>
+                                                )}
+                                                <Feather name="copy" size={21} color="#f97316" />
+                                            </View>
+                                        )} */}
+                                    </Pressable>
+                                    <View className="flex flex-row justify-end items-end mt-1">
+                                        <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px]">{medicalCard.tl}</Text>
+                                    </View>
                                 </View>
-                                <SimpleLineIcons name="options" size={18} color="#f97316" />
-                                </View>
-                                <Pressable className="flex flex-row justify-center items-center h-1/2 w-full mt-2">
-                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`mr-3 text-xl ${isAuth ? 'text-orange-500' : 'text-blue-400'} mt-2`}>{ isAuth && medicalCard.id >= 1 ? medicalCard.no_rm : !isAuth ? 'Login Terlebih Dahulu' : 'Kamu Belum Daftar' }</Text>
-                                { medicalCard.id >= 1 && (
-                                    <Feather name="copy" size={21} color="#f97316" />
-                                ) }
-                                </Pressable>
-                                <View className="flex flex-row justify-end items-end mt-1">
-                                <Text style={{ fontFamily: 'Montserrat-Regular' }} className="text-[12px]">{medicalCard.tl}</Text>
-                                </View>
+                                <View className="absolute w-[80px] h-[60px] z-0 top-0 left-2 rounded-tl-[31px] border-t-2 border-l-2 border-orange-400 bg-transparent" />
+                                <View className="absolute w-[80px] h-[60px] z-0 bottom-0 right-2 rounded-br-[31px] border-b-2 border-r-2 border-orange-400 bg-transparent" />
                             </View>
-                            <View className="absolute w-[80px] h-[60px] z-0 top-0 left-2 rounded-tl-[31px] border-t-2 border-l-2 border-orange-400 bg-transparent" />
-                            <View className="absolute w-[80px] h-[60px] z-0 bottom-0 right-2 rounded-br-[31px] border-b-2 border-r-2 border-orange-400 bg-transparent" />
-                        </View>
-                    )}
+                        )}
 
                         <SafeAreaView>
-                        <View className="w-full flex flex-col items-center justify-start mt-8">
-                            <View className="w-full flex flex-row justify-between px-4">
-                            <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">QUICK ACCESS</Text>
-                            </View>
-
-                            {isLoading && (<QuickAccessSkelton width={SKE_WIDTH} />)}
-
-                            {!isLoading && (
-                                <View className="flex flex-row justify-center gap-x-6 h-[60px] w-full mt-8">
-                                <Pressable onPress={() => {getScheduleData()}}>
-                                    <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 1 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
-                                        <Image source={require('./../../../assets/icons/schedule.png')} className="w-[30px] h-[30px]" />
-                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 1 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Jadwal</Text>
-                                    </View>
-                                </Pressable>
-                                <Pressable onPress={() => {getDoctorData()}}>
-                                    <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 2 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
-                                        <Image source={require('./../../../assets/icons/doctor.png')} className="w-[30px] h-[30px]" />
-                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 2 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Dokter</Text>
-                                    </View>
-                                </Pressable>
-                                <Pressable onPress={() => {getVisitHistoryData()}}>
-                                    <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 3 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
-                                        <Image source={require('./../../../assets/icons/list.png')} className="w-[30px] h-[30px]" />
-                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 3 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Riwayat</Text>
-                                    </View>
-                                </Pressable>
-                                <Pressable onPress={() => {getHelp()}}>
-                                    <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 4 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
-                                        <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px]" />
-                                        <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Petunjuk</Text>
-                                    </View>
-                                </Pressable>
+                            <View className="w-full flex flex-col items-center justify-start mt-8">
+                                <View className="w-full flex flex-row justify-between px-4">
+                                    <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">QUICK ACCESS</Text>
                                 </View>
-                            )}
-                        </View>
 
-                        <View className="h-full mt-11 pb-4 w-full px-2">
-                            <View className="w-full flex flex-row justify-between items-center px-4">
-                            <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">{ quickAccess === 1 ? 'JADWAL' : quickAccess === 2 ? 'DOKTER' : quickAccess === 3 ? 'Riwayat' : 'Petunjuk' }</Text>
-                            <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{ quickAccess === 1 ? dateNow : '' }</Text>
-                            </View>
-                            
-                            <View className="flex flex-col justify-start items-center px-2 mt-2">
+                                {isLoading && (<QuickAccessSkelton width={SKE_WIDTH} />)}
 
-                                {(isLoading || listSkelton) && <ListSkeleton width={SKE_WIDTH} />}
-
-                                {!isLoading && quickAccess === 1 && scheduleList.length >= 1 && (
-                                <Schedule />
+                                {!isLoading && (
+                                    <View className="flex flex-row justify-center gap-x-6 h-[60px] w-full mt-8">
+                                        <Pressable onPress={() => { getScheduleData() }}>
+                                            <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 1 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                                <Image source={require('./../../../assets/icons/schedule.png')} className="w-[30px] h-[30px]" />
+                                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 1 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Jadwal</Text>
+                                            </View>
+                                        </Pressable>
+                                        <Pressable onPress={() => { getDoctorData() }}>
+                                            <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 2 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                                <Image source={require('./../../../assets/icons/doctor.png')} className="w-[30px] h-[30px]" />
+                                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 2 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Dokter</Text>
+                                            </View>
+                                        </Pressable>
+                                        <Pressable onPress={() => { getVisitHistoryData() }}>
+                                            <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 3 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                                <Image source={require('./../../../assets/icons/list.png')} className="w-[30px] h-[30px]" />
+                                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 3 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Riwayat</Text>
+                                            </View>
+                                        </Pressable>
+                                        <Pressable onPress={() => { getHelp() }}>
+                                            <View className={`w-[60px] h-full border-[1px] rounded-xl ${quickAccess === 4 ? 'border-blue-500 bg-blue-400' : 'border-gray-300'} flex flex-col items-center justify-center`}>
+                                                <Image source={require('./../../../assets/icons/customer-service.png')} className="w-[30px] h-[30px]" />
+                                                <Text style={{ fontFamily: 'Montserrat-SemiBold' }} className={`${quickAccess === 4 ? 'text-white' : 'text-blue-300'} text-[10px] mt-[1px]`}>Petunjuk</Text>
+                                            </View>
+                                        </Pressable>
+                                    </View>
                                 )}
-
-                                {!isLoading && !listSkelton && quickAccess === 1 && scheduleList.length === 0 && (
-                                <View className="w-full flex flex-row justify-center items-center h-[200px]">
-                                    <Text style={{ color: '#888', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>
-                                    Tidak ada jadwal hari ini.
-                                    </Text>
-                                </View>
-                                )}
-
                             </View>
 
-                            {!isLoading && !listSkelton && quickAccess === 2 && (
-                                <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
-                                    <DoctorList/>
+                            <View className="h-full mt-11 pb-4 w-full px-2">
+                                <View className="w-full flex flex-row justify-between items-center px-4">
+                                    <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-700">{quickAccess === 1 ? 'JADWAL' : quickAccess === 2 ? 'DOKTER' : quickAccess === 3 ? 'Riwayat' : 'Petunjuk'}</Text>
+                                    <Text style={{ fontFamily: 'Montserrat-Bold' }} className="text-gray-400 uppercase">{quickAccess === 1 ? dateNow : ''}</Text>
                                 </View>
-                            )}
 
-                            {!isLoading && !listSkelton && quickAccess === 3 && (
-                                <View>
-                                    { isAuth ? (
-                                        <VisitHistory/>
-                                    ) : (
+                                <View className="flex flex-col justify-start items-center px-2 mt-2">
+
+                                    {(isLoading || listSkelton) && <ListSkeleton width={SKE_WIDTH} />}
+
+                                    {!isLoading && !listSkelton && quickAccess === 1 && scheduleList.length >= 1 && (
+                                        <Schedule />
+                                    )}
+
+                                    {!isLoading && !listSkelton && quickAccess === 1 && scheduleList.length === 0 && (
                                         <View className="w-full flex flex-row justify-center items-center h-[200px]">
                                             <Text style={{ color: '#888', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>
-                                            Login terlebih dahulu.
+                                                Tidak ada jadwal hari ini.
                                             </Text>
                                         </View>
                                     )}
-                                </View>
-                            )}
 
-                            {!isLoading && !listSkelton && quickAccess === 4 && (
-                                <View>
-                                    <Help/>
                                 </View>
-                            )}
-                            
-                        </View>
+
+                                {!isLoading && !listSkelton && quickAccess === 2 && (
+                                    <View className="bg-gray-50 bg-none shadow-lg h-full py-6 rounded-md mt-2">
+                                        <DoctorList />
+                                    </View>
+                                )}
+
+                                {!isLoading && !listSkelton && quickAccess === 3 && (
+                                    <View>
+                                        {isAuth ? (
+                                            <VisitHistory />
+                                        ) : (
+                                            <View className="w-full flex flex-row justify-center items-center h-[200px]">
+                                                <Text style={{ color: '#888', fontSize: 12, fontFamily: 'Montserrat-Regular' }}>
+                                                    Login terlebih dahulu.
+                                                </Text>
+                                            </View>
+                                        )}
+                                    </View>
+                                )}
+
+                                {!isLoading && !listSkelton && quickAccess === 4 && (
+                                    <View>
+                                        <Help />
+                                    </View>
+                                )}
+
+                            </View>
                         </SafeAreaView>
                     </ScrollView>
                 </View>
@@ -333,5 +349,5 @@ const HomeComp: React.FC<LoginFormProps>  = ({ navigation }) => {
         </View>
     )
 }
-    
+
 export default HomeComp

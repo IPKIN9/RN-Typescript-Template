@@ -1,19 +1,6 @@
 // File: MyContext.tsx
 import React, { createContext, useContext, ReactNode, useState } from 'react';
 
-export interface schedulesInterface {
-  id: number
-  schedule_id: number
-  polyId: number
-  start_time: string
-  end_time: string
-  created_at: string
-  updated_at: string
-  nama_poly: string
-  nama_ruangan: string
-  jam_praktek: string
-}
-
 export interface doctorInterface {
   id: string
   nama: string
@@ -53,8 +40,6 @@ interface HomeContextState {
   setIsLoading    : (loading: boolean) => void;
   pageLoading     : boolean
   setPageLoading  : (loading: boolean) => void;
-  scheduleList    : schedulesInterface[]
-  setScheduleList : (payload: schedulesInterface[]) => void;
   doctorList      : doctorInterface[]
   setDoctorList   : (payload: doctorInterface[]) => void;
   medicalCard     : IMedicalCardInterface
@@ -69,7 +54,6 @@ export const HomeContextProvider: React.FC<{ children: ReactNode }> = ({ childre
 
   const [isLoading , setIsLoading ] = useState (true);
   const [pageLoading , setPageLoading ] = useState (true);
-  const [scheduleList, setScheduleList] = useState<schedulesInterface[]>([]);
   const [doctorList, setDoctorList] = useState<doctorInterface[]>([]);
   const [visitHistory, setVisitHistory] = useState<IVisitHistory[]>([]);
   const [medicalCard, setMedicalCard] = useState<IMedicalCardInterface>({
@@ -85,8 +69,6 @@ export const HomeContextProvider: React.FC<{ children: ReactNode }> = ({ childre
     pageLoading,
     setIsLoading,
     setPageLoading,
-    scheduleList,
-    setScheduleList,
     doctorList,
     setDoctorList,
     medicalCard,

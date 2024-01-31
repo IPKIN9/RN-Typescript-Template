@@ -1,7 +1,8 @@
 import moment from "moment";
 import React, { useEffect, useState } from "react";
 import { Text, View } from "react-native";
-import { schedulesInterface, useHomeContext } from "../../store/HomeContextState";
+import { useHomeContext } from "../../store/HomeContextState";
+import { schedulesInterface, useGlobal } from "../../store/GlobalStore";
 
 function isCurrentTimeBetween(start: string, end: string): boolean {
   const currentTime = new Date();
@@ -33,7 +34,7 @@ const RenderItem: React.FC<schedulesInterface> = ({ nama_poly, nama_ruangan, sta
 );
 
 const Schedule: React.FC = () => {
-  const { isLoading, scheduleList } = useHomeContext()
+  const { scheduleList } = useGlobal()
   const renderedItem = () => {
     return scheduleList.map((item, index) => (
       <RenderItem key={index} {...item} />
